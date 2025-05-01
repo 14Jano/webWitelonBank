@@ -1,20 +1,33 @@
 <template>
-  <div class="register">
-    <h1>Otwarcie konta</h1>
+  <router-link to="/navbar"></router-link>
+  <div class="register-form">
+    <h1>Rejestracja w Witelon Bank</h1>
     <form @submit.prevent="register">
-      <div>
+      <div class="form-group">
+        <label for="firstName">Imię</label>
+        <input v-model="form.firstName" type="text" id="firstName" placeholder="Wpisz swoje imię" required />
+      </div>
+      <div class="form-group">
+        <label for="lastName">Nazwisko</label>
+        <input v-model="form.lastName" type="text" id="lastName" placeholder="Wpisz swoje nazwisko" required />
+      </div>
+      <div class="form-group">
         <label for="email">Email</label>
-        <input v-model="form.email" type="email" id="email" required />
+        <input v-model="form.email" type="email" id="email" placeholder="Wpisz swój email" required />
       </div>
-      <div>
+      <div class="form-group">
+        <label for="email">Telefon</label>
+        <input v-model="form.tel" type="tel" id="tel" placeholder="Wpisz swój nr telefonu" />
+      </div>
+      <div class="form-group">
         <label for="password">Hasło</label>
-        <input v-model="form.password" type="password" id="password" required />
+        <input v-model="form.password" type="password" id="password" placeholder="Wpisz hasło" required />
       </div>
-      <div>
+      <div class="form-group">
         <label for="confirmPassword">Potwierdź hasło</label>
-        <input v-model="form.confirmPassword" type="password" id="confirmPassword" required />
+        <input v-model="form.confirmPassword" type="password" id="confirmPassword" placeholder="Potwierdź hasło" required />
       </div>
-      <button type="submit">Załóż konto</button>
+      <button type="submit" class="submit-button">Zarejestruj się</button>
     </form>
     <p v-if="error" class="error">{{ error }}</p>
   </div>
@@ -25,6 +38,9 @@ import { ref } from 'vue'
 import axios from 'axios'
 
 const form = ref({
+  firstName: '',
+  lastName: '',
+  tel: '',
   email: '',
   password: '',
   confirmPassword: ''
@@ -38,15 +54,15 @@ const register = async () => {
     return
   }
 
-
-  // API ANRZEJ
   try {
     const response = await axios.post(import.meta.env.VITE_API_URL + '/auth/register', {
+      firstName: form.value.firstName,
+      lastName: form.value.lastName,
+      tel: form.value.tel,
       email: form.value.email,
       password: form.value.password
     })
 
-    // TODO: Przekierowanie po sukcesie
     console.log('Zarejestrowano:', response.data)
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Błąd podczas rejestracji.'
@@ -55,18 +71,67 @@ const register = async () => {
 </script>
 
 <style scoped>
-.register {
-  max-width: 400px;
-  margin: 0 auto;
+.register-form {
+  max-width: 500px;
+  margin: 2rem auto;
   padding: 2rem;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-input {
-  display: block;
+
+h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #1a202c;
+}
+
+.form-group {
   margin-bottom: 1rem;
-  width: 100%;
 }
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}
+
+.submit-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #3182ce;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #2b6cb0;
+}
+
 .error {
   color: red;
   margin-top: 1rem;
+  text-align: center;
 }
 </style>
