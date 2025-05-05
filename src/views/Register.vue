@@ -28,6 +28,8 @@
         <input v-model="form.confirmPassword" type="password" id="confirmPassword" placeholder="Potwierdź hasło" required />
       </div>
       <button type="submit" class="submit-button">Zarejestruj się</button>
+
+      <p class="mt-3 items-center">Masz już konto? <router-link to="/login" id="link">Zaloguj się tutaj</router-link></p>
     </form>
     <p v-if="error" class="error">{{ error }}</p>
   </div>
@@ -133,5 +135,9 @@ input:focus {
   color: red;
   margin-top: 1rem;
   text-align: center;
+}
+#link:hover {
+  color: #2563eb;
+  text-decoration: none;
 }
 </style>
