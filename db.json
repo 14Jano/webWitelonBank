@@ -6,7 +6,8 @@
       "lastName": "Kowalski",
       "tel": "123456789",
       "email": "jan.kowalski@example.com",
-      "password": "123456"
+      "password": "123456",
+      "isActive": true
     }
   ]
 }

@@ -44,6 +44,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useAuthStore } from "../store/auth.ts";
+
+const authStore = useAuthStore();
 
 const email = ref('');
 const password = ref('');
@@ -78,7 +81,6 @@ const handleLogin = async () => {
   if (!validateForm()) return;
 
   try {
-    // Przykładowe wywołanie API
     const response = await fetch(import.meta.env.VITE_API_URL + '/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -95,6 +97,9 @@ const handleLogin = async () => {
 
     const data = await response.json();
     console.log('Zalogowano:', data);
+    authStore.login(data.user);
+    window.location.href = '/account';
+
   } catch (err: any) {
     errorMessage.value = err.message || 'Wystąpił błąd podczas logowania.';
   }

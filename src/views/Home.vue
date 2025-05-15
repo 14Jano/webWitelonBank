@@ -57,7 +57,6 @@
 </template>
 
 <script setup lang="ts">
-// Możesz dodać tutaj dodatkową logikę, jeśli będzie potrzebna
 </script>
 
 <style scoped>
