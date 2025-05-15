@@ -6,16 +6,13 @@ import fs from 'fs';
 const app = express();
 const PORT = 5000;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// Endpoint testowy, żeby sprawdzić czy serwer żyje
 app.get('/', (req, res) => {
     res.send('Serwer działa ✅');
 });
 
-// Załaduj użytkowników z pliku db.json
 const getUsers = () => {
     const data = fs.readFileSync('./db.json');
     return JSON.parse(data).users;
@@ -30,7 +27,10 @@ app.post('/auth/login', (req, res) => {
 
     if (user) {
         res.json({ message: 'Zalogowano pomyślnie!', user });
-    } else {
+    } else if(!user.isActive){
+        res.status(403).json({ error: 'Konto nie jest aktywne. Sprawdź email.' });
+    }
+    else {
         res.status(401).json({ error: 'Nieprawidłowe dane logowania.' });
     }
 });
