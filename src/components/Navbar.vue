@@ -7,7 +7,7 @@
         <ul class="navbar-list-one flex gap-4 me-130 float-start p-5">
           <li><router-link to="/">Strona główna</router-link></li>
           <li><router-link to="/currencies">Kursy walut</router-link></li>
-          <li><router-link to="/account">Moje konto</router-link></li>
+          <li><router-link to="/account" v-if="user">Moje konto</router-link></li>
           <li><router-link to="/about">O nas</router-link></li>
           <li><router-link to="/help">Pomoc i kontakt</router-link></li>
           <li><router-link to="/promo">Promocje</router-link></li>
@@ -18,6 +18,7 @@
             <button id="logout" @click="authStore.logout">Wyloguj</button>
           </template>
           <template v-else>
+            <FontAwesomeIcon :icon="faUnlock" id="icon" class="mt-1" />
             <li><router-link to="/login">Logowanie</router-link></li>
             <li><router-link to="/register">Rejestracja</router-link></li>
           </template>
@@ -48,6 +49,7 @@ import { useAuthStore } from '../store/auth.ts'
 import { computed } from 'vue'
 import { faBank } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faUnlock } from '@fortawesome/free-solid-svg-icons'
 import { useI18n } from 'vue-i18n'
 
 const { locale } = useI18n()

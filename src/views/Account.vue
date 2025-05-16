@@ -23,6 +23,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import SaldoHistoria from '../components/account/History.vue'
+import KartyZarzadzanie from '../components/account/Cards.vue'
+import Transfer from '../components/account/Transfer.vue'
+
+defineExpose({ SaldoHistoria, KartyZarzadzanie })
 
 const tabs = [
   { name: 'saldo', label: 'Saldo i Historia' },
@@ -39,9 +44,9 @@ const activeTab = ref('saldo')
 
 const currentTabComponent = computed(() => {
   switch (activeTab.value) {
-    case 'saldo': return 'SaldoHistoria'
-    case 'przelewy': return 'PrzelewyForm'
-    case 'karty': return 'KartyZarzadzanie'
+    case 'saldo': return SaldoHistoria
+    case 'przelewy': return Transfer
+    case 'karty': return KartyZarzadzanie
     case 'cykliczne': return 'PlatnosciCykliczne'
     case 'odbiorcy': return 'ListaOdbiorcow'
     case 'powiadomienia': return 'PowiadomieniaUzytkownika'
