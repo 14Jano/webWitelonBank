@@ -32,6 +32,7 @@ const routes = [
     { path: "/recipients", component: Recipients },
     { path: "/reset-password", component: ResetPassword },
     { path: "/account", component: Account },
+    { path: "/2fa", component: import('../views/TwoFactor.vue') }
 ];
 
 const router = createRouter({

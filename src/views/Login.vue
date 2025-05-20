@@ -8,31 +8,24 @@
             type="email"
             id="email"
             v-model="email"
+            :class="{ 'input-error': errors.email }"
             placeholder="Wprowadź email"
             required
         />
         <p v-if="errors.email" class="error">{{ errors.email }}</p>
       </div>
+
       <div class="form-group">
         <label for="password">Hasło:</label>
         <input
             type="password"
             id="password"
-            v-model="password"
+            v-model="haslo"
+            :class="{ 'input-error': errors.haslo }"
             placeholder="Wprowadź hasło"
             required
         />
-        <p v-if="errors.password" class="error">{{ errors.password }}</p>
-      </div>
-      <div class="form-group">
-        <label for="rememberMe">
-          <input
-              type="checkbox"
-              id="rememberMe"
-              v-model="rememberMe"
-          />
-          Zapamiętaj mnie
-        </label>
+        <p v-if="errors.haslo" class="error">{{ errors.haslo }}</p>
       </div>
       <button type="submit" class="btn">Zaloguj</button>
 
@@ -49,9 +42,8 @@ import { useAuthStore } from "../store/auth.ts";
 const authStore = useAuthStore();
 
 const email = ref('');
-const password = ref('');
-const rememberMe = ref(false);
-const errors = ref<{ email?: string; password?: string }>({});
+const haslo = ref('');
+const errors = ref<{ email?: string; haslo?: string }>({});
 const errorMessage = ref('');
 
 const validateForm = () => {
@@ -66,11 +58,11 @@ const validateForm = () => {
     isValid = false;
   }
 
-  if (!password.value) {
-    errors.value.password = 'Hasło jest wymagane.';
+  if (!haslo.value) {
+    errors.value.haslo = 'Hasło jest wymagane.';
     isValid = false;
-  } else if (password.value.length < 6) {
-    errors.value.password = 'Hasło musi mieć co najmniej 6 znaków.';
+  } else if (haslo.value.length < 6) {
+    errors.value.haslo = 'Hasło musi mieć co najmniej 6 znaków.';
     isValid = false;
   }
 
@@ -78,16 +70,17 @@ const validateForm = () => {
 };
 
 const handleLogin = async () => {
-  if (!validateForm()) return;
+  if (!validateForm()) {
+    return;
+  }
 
   try {
-    const response = await fetch(import.meta.env.VITE_API_URL + '/auth/login', {
+    const response = await fetch(import.meta.env.VITE_API_URL + '/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: email.value,
-        password: password.value,
-        rememberMe: rememberMe.value,
+        haslo: haslo.value
       }),
     });
 
@@ -109,53 +102,92 @@ const handleLogin = async () => {
 <style scoped>
 .login-form {
   max-width: 400px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background-color: #f8fafc;
+  margin: 3rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
+
 h2 {
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  color: #1e293b;
 }
+
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
+
 label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: bold;
+  font-weight: 600;
+  color: #334155;
 }
+
 input[type="email"],
 input[type="password"] {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.65rem;
   border: 1px solid #cbd5e1;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
 }
-input[type="checkbox"] {
-  margin-right: 0.5rem;
+
+.input-error {
+  border-color: red;
 }
-button {
+
+button.btn {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background-color: #2563eb;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
-button:hover {
+
+button.btn:hover {
   background-color: #1d4ed8;
 }
+
+button.btn:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+.alt-link {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
 .error {
   color: red;
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
-#link:hover {
+
+#link {
   color: #2563eb;
-  text-decoration: none;
+  font-weight: 500;
+}
+
+#link:hover {
+  text-decoration: underline;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>
