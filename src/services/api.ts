@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'import.meta.env.VITE_API_URL',
-    timeout: 5000,
+    baseURL: 'https://witelonapi.host358482.xce.pl/api',
+    withCredentials: true,
     headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': "application/json",
     },
 });
 
