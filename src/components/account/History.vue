@@ -68,6 +68,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Banknote, ArrowDownCircle, ChevronUp, ChevronDown, ArrowDownToLine } from 'lucide-vue-next'
+import { useAuthStore } from '../../store/auth.ts'
+
+const auth = useAuthStore()
 
 const transactions = ref([
   { id: 1, date: '2025-05-14', type: 'credit', title: 'Wpłata wynagrodzenia', amount: 3200 },

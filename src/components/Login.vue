@@ -30,6 +30,9 @@
       <button type="submit" class="btn">Zaloguj</button>
 
       <p class="mt-3 items-center">Nie masz konta? <router-link to="/register" id="link">Założysz je tutaj</router-link></p>
+      <p class="mt-2">
+        <router-link to="/forgot-password" id="link">Nie pamiętasz hasła?</router-link>
+      </p>
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
     </form>
   </div>
@@ -38,7 +41,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useAuthStore } from "../store/auth.ts";
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
+const emit = defineEmits(['2fa-required']);
 const authStore = useAuthStore();
 
 const email = ref('');
@@ -77,7 +83,10 @@ const handleLogin = async () => {
   try {
     const response = await fetch(import.meta.env.VITE_API_URL + '/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
       body: JSON.stringify({
         email: email.value,
         haslo: haslo.value
@@ -90,9 +99,11 @@ const handleLogin = async () => {
 
     const data = await response.json();
     console.log('Zalogowano:', data);
-    authStore.login(data.user);
-    window.location.href = '/account';
 
+    authStore.setTempToken(data.token);
+    authStore.setLoginEmail(email.value);
+
+    await router.push({path: '/2fa'});
   } catch (err: any) {
     errorMessage.value = err.message || 'Wystąpił błąd podczas logowania.';
   }

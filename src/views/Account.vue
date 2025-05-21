@@ -26,6 +26,7 @@ import { ref, computed } from 'vue'
 import SaldoHistoria from '../components/account/History.vue'
 import KartyZarzadzanie from '../components/account/Cards.vue'
 import Transfer from '../components/account/Transfer.vue'
+import UstawieniaKonta from '../components/account/Settings.vue'
 
 defineExpose({ SaldoHistoria, KartyZarzadzanie })
 
@@ -51,7 +52,7 @@ const currentTabComponent = computed(() => {
     case 'odbiorcy': return 'ListaOdbiorcow'
     case 'powiadomienia': return 'PowiadomieniaUzytkownika'
     case 'eksport': return 'EksportHistorii'
-    case 'ustawienia': return 'UstawieniaKonta'
+    case 'ustawienia': return UstawieniaKonta
     default: return 'SaldoHistoria'
   }
 })
