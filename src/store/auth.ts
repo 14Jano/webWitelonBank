@@ -9,8 +9,13 @@ export const useAuthStore = defineStore('auth', {
             firstName: string
             lastName: string
         },
-        token: localStorage.getItem('userToken') || null
+        token: localStorage.getItem('userToken') || localStorage.getItem('tempToken') || null,
+        loginEmail: null as string | null,
     }),
+    getters: {
+        isLoggedIn: (state) => !!state.token && !!state.user
+
+    },
 
     actions: {
         async login(credentials: { email: string; haslo: string }) {
@@ -24,27 +29,19 @@ export const useAuthStore = defineStore('auth', {
                 this.token = tempToken
                 localStorage.setItem('tempToken', tempToken)
 
-                const userResponse = await axios.get(
-                    'https://witelonapi.host358482.xce.pl/api/user',
-                    {
-                        headers: {
-                            Authorization: `Bearer ${tempToken}`
-                        }
-                    }
-                )
-
-                this.user = userResponse.data
-                localStorage.setItem('user', JSON.stringify(this.user))
+                return true
             } catch (error) {
                 console.error('Błąd logowania:', error)
                 throw error
             }
         },
-        async verify2FA(code: string) {
+
+        async verify2FA(email: string, dwuetapowy_kod: string) {
             try {
                 const response = await axios.post(
                     'https://witelonapi.host358482.xce.pl/api/2fa',
-                    { code },
+
+                    { email, dwuetapowy_kod },
                     {
                         headers: {
                             Authorization: `Bearer ${this.token}`
@@ -55,7 +52,7 @@ export const useAuthStore = defineStore('auth', {
                 const token = response.data.token
                 this.token = token
                 localStorage.setItem('userToken', token)
-                localStorage.removeItem('tempToken') // czyść tymczasowy token
+                localStorage.removeItem('tempToken')
 
                 const userResponse = await axios.get(
                     'https://witelonapi.host358482.xce.pl/api/user',
@@ -75,12 +72,22 @@ export const useAuthStore = defineStore('auth', {
                 throw error
             }
         },
+
+        setTempToken(token: string) {
+            this.token = token
+            localStorage.setItem('tempToken', token)
+        },
+
+        setLoginEmail(email: string) {
+            this.loginEmail = email
+        },
+
         logout() {
             this.user = null
             this.token = null
             localStorage.removeItem('user')
             localStorage.removeItem('userToken')
+            localStorage.removeItem('tempToken')
         }
     }
-
 })
