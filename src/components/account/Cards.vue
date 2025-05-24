@@ -1,140 +1,345 @@
 <template>
-  <div class="space-y-8">
-    <div class="flex justify-between items-center">
-      <h2 class="text-2xl font-bold text-gray-800">Twoje karty płatnicze</h2>
-      <button @click="showAddCard = true" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-        + Dodaj kartę
-      </button>
-    </div>
-
-    <div v-if="cards.length === 0" class="text-gray-500">Brak zapisanych kart.</div>
-
-    <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="card in cards" :key="card.id" class="rounded-xl p-5 text-white shadow-lg relative" :class="card.bg">
-        <div class="flex justify-between items-center mb-4">
-          <div>
-            <p class="text-lg font-semibold">{{ card.bankName }}</p>
-            <p class="text-sm opacity-75">{{ cardType(card.number) }}</p>
+  <div>
+    <h2>Karty Płatnicze</h2>
+    <div v-if="loading">Ładowanie kart...</div>
+    <div v-else>
+      <div v-if="cards.length" class="card-grid">
+        <div
+            v-for="card in cards"
+            :key="card.id"
+            class="payment-card"
+            @click="openCard(card)"
+        >
+          <div class="card-top">
+            <span class="bank-name">{{ bankName }}</span>
+            <span class="chip"></span>
           </div>
-          <img :src="cardLogo(card.number)" alt="Card type" class="w-10 h-10" />
-        </div>
+          <div class="card-number">
+            {{ maskCardNumber(card.nr_karty) }}
+          </div>
+          <div class="card-bottom">
+            <div class="expiry">
+              <label>Ważna do: </label>
+              <span>{{ formatDateShort(card.data_waznosci) }}</span>
+            </div>
+            <p>Status:
+              <span :class="card.zablokowana ? 'text-red-600' : 'text-green-600'">
+                {{ card.zablokowana ? 'Zablokowana' : 'Aktywna' }}
+              </span>
+            </p>
+            <button
+                v-if="card.zablokowana"
+                @click.stop="confirmUnblock(card.id)"
+                class="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600"
+            >
+              Odblokuj kartę
+            </button>
+            <button
+                v-else
+                @click.stop="confirmBlock(card.id)"
+                class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+            >
+              Zablokuj kartę
+            </button>
 
-        <div class="font-mono tracking-widest text-xl mb-2">{{ maskCardNumber(card.number) }}</div>
-        <div class="text-sm flex justify-between">
-          <span>Ważna do: {{ card.expiry }}</span>
-          <span>CVV: ***</span>
-        </div>
-        <div class="mt-4 text-sm">Właściciel: {{ card.owner }}</div>
+            <button
+                @click.stop="changeLimit(card)"
+                class="bg-yellow-500 text-white px-4 py-1 rounded hover:bg-yellow-600"
+            >
+              Zmień limit
+            </button>
+            <button
+                @click.stop="changePaymentSettings(card)"
+                class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
+            >
+              Ustawienia płatności
+            </button>
 
-        <button @click="removeCard(card.id)" class="absolute top-3 right-3 text-sm text-white/80 hover:text-red-300 transition">
-          ✕
-        </button>
+
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        Brak kart do wyświetlenia.
       </div>
     </div>
 
-    <div v-if="showAddCard" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-        <h3 class="text-xl font-semibold mb-4">Dodaj nową kartę</h3>
-        <div class="space-y-3">
-          <input v-model="newCard.bankName" placeholder="Nazwa banku" class="input" />
-          <input v-model="newCard.number" placeholder="Numer karty" class="input" />
-          <input v-model="newCard.expiry" placeholder="MM/RR" class="input" />
-          <input v-model="newCard.owner" placeholder="Imię i nazwisko właściciela" class="input" />
-        </div>
-        <div class="mt-6 flex justify-end gap-2">
-          <button @click="showAddCard = false" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Anuluj</button>
-          <button @click="addCard" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Zapisz</button>
-        </div>
+    <div v-if="selectedCard" class="modal-overlay">
+      <div class="modal-content">
+        <h3>Szczegóły Karty</h3>
+        <p><strong>ID:</strong> {{ selectedCard.id }}</p>
+        <p><strong>Numer karty:</strong> {{ selectedCard.nr_karty_masked }}</p>
+        <p><strong>Data ważności:</strong> {{ formatDate(selectedCard.data_waznosci) }}</p>
+        <p><strong>Limit dzienny:</strong> {{ selectedCard.limit_dzienny }} PLN</p>
+        <p>
+          <strong>Status:</strong>
+          <span :style="{ color: selectedCard.zablokowana ? 'red' : 'green' }">
+            {{ selectedCard.zablokowana ? ' Zablokowana' : ' Aktywna' }}
+          </span>
+        </p>
+        <p><strong>Płatności internetowe:</strong>
+          <span :style="{ color: selectedCard.platnosci_internetowe_aktywne ? 'green' : 'red' }">
+            {{ selectedCard.platnosci_internetowe_aktywne ? 'Aktywne' : 'Zablokowane' }}
+          </span>
+        </p>
+        <p><strong>Płatności zbliżeniowe:</strong>
+          <span :style="{ color: selectedCard.platnosci_zblizeniowe_aktywne ? 'green' : 'red' }">
+            {{ selectedCard.platnosci_zblizeniowe_aktywne ? 'Aktywne' : 'Zablokowane' }}
+        </span>
+        </p>
+
+        <button @click="closeModal">Zamknij</button>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
+<script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { useAuthStore } from '@/store/auth';
 
-type Card = {
-  id: number
-  number: string
-  expiry: string
-  owner: string
-  bankName: string
-  bg?: string
+const authStore = useAuthStore();
+const token = authStore.token;
+const user = authStore.user;
+
+const accounts = ref([]);
+const cards = ref([]);
+const loading = ref(true);
+const selectedCard = ref(null);
+const bankName = 'Witelon Bank';
+
+function maskCardNumber(number) {
+  if (!number) return '**** **** **** ****';
+  return number.replace(/(\d{4})(?=\d)/g, '$1 ').replace(/.(?=.{5})/g, '*');
 }
 
-const cards = ref<Card[]>([
-  {
-    id: 1,
-    number: '1234123412341234',
-    expiry: '12/26',
-    owner: 'Jan Kowalski',
-    bankName: 'Bank Nowoczesny',
-    bg: 'bg-gradient-to-r from-blue-700 to-blue-500'
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString();
+}
+
+function formatDateShort(dateStr) {
+  const date = new Date(dateStr);
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear()).slice(-2);
+  return `${month}/${year}`;
+}
+
+function openCard(card) {
+  selectedCard.value = card;
+}
+
+function closeModal() {
+  selectedCard.value = null;
+}
+
+async function fetchAccounts() {
+  try {
+    const response = await axios.get('/api/konta', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    accounts.value = response.data;
+  } catch (error) {
+    console.error('Error fetching accounts:', error);
   }
-])
-
-const showAddCard = ref(false)
-const newCard = ref<Card>({
-  id: 0,
-  number: '',
-  expiry: '',
-  owner: '',
-  bankName: '',
-  bg: 'bg-gradient-to-r from-gray-600 to-gray-400'
-})
-
-function maskCardNumber(number: string): string {
-  return number.replace(/\d{12}(\d{4})/, '**** **** **** $1')
 }
 
-function cardType(number: string) {
-  if (/^4/.test(number)) return 'Visa'
-  if (/^5[1-5]/.test(number)) return 'Mastercard'
-  return 'Nieznany typ'
+async function fetchCards(accountId) {
+
+  try {
+    const response = await axios.get(`/api/konta/${accountId}/karty`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    cards.value = response.data;
+    console.log('Odebrane karty:', response.data);
+  } catch (error) {
+    console.error('Error fetching cards:', error);
+  } finally {
+    loading.value = false;
+  }
 }
 
-function cardLogo(number: string): string {
-  if (/^4/.test(number)) return 'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png'
-  if (/^5[1-5]/.test(number)) return 'https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png'
-  return 'https://img.favpng.com/3/23/12/credit-card-font-awesome-bank-debit-card-png-favpng-6SytA4rRMLv886APfxKbWGJKY.jpg'
+const confirmBlock = async (cardId) => {
+  if (confirm('Czy na pewno chcesz zablokować tę kartę?')) {
+    await blockCard(cardId);
+  }
+};
+
+const confirmUnblock = async (cardId) => {
+  if (confirm('Czy na pewno chcesz odblokować tę kartę?')) {
+    await unblockCard(cardId);
+  }
+};
+
+async function blockCard(cardId) {
+  try {
+    await axios.patch(`/api/karty/${cardId}/zablokuj`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const accountId = accounts.value[0].id;
+    await fetchCards(accountId);
+  } catch (error) {
+    console.error('Błąd podczas blokowania karty:', error);
+  }
 }
 
-function addCard() {
-  if (!newCard.value.number || !newCard.value.expiry || !newCard.value.owner || !newCard.value.bankName) return
-
-  const id = Date.now()
-  const bg = generateGradient()
-  cards.value.push({ ...newCard.value, id, bg })
-  newCard.value = { id: 0, number: '', expiry: '', owner: '', bankName: '', bg: '' }
-  showAddCard.value = false
+async function unblockCard(cardId) {
+  try {
+    await axios.patch(`/api/karty/${cardId}/odblokuj`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const accountId = accounts.value[0].id;
+    await fetchCards(accountId);
+  } catch (error) {
+    console.error('Błąd podczas odblokowywania karty:', error);
+  }
 }
 
-function removeCard(id: number) {
-  cards.value = cards.value.filter(c => c.id !== id)
+async function changeLimit(card) {
+  const newLimit = prompt(`Podaj nowy dzienny limit dla karty ${card.nr_karty_masked}:`, card.limit_dzienny);
+  if (!newLimit || isNaN(newLimit) || Number(newLimit) <= 0) {
+    alert('Nieprawidłowy limit.');
+    return;
+  }
+
+  try {
+    await axios.patch(`/api/karty/${card.id}/limit`, {
+      limit_dzienny: parseFloat(newLimit)
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const accountId = accounts.value[0].id;
+    await fetchCards(accountId);
+  } catch (error) {
+    console.error('Błąd podczas zmiany limitu:', error);
+    alert('Nie udało się zmienić limitu.');
+  }
 }
 
-function generateGradient(): string {
-  const gradients = [
-    'bg-gradient-to-r from-indigo-600 to-purple-500',
-    'bg-gradient-to-r from-green-500 to-teal-400',
-    'bg-gradient-to-r from-pink-500 to-red-400',
-    'bg-gradient-to-r from-gray-700 to-gray-500',
-    'bg-gradient-to-r from-blue-800 to-blue-600',
-  ]
-  return gradients[Math.floor(Math.random() * gradients.length)]
+async function changePaymentSettings(card) {
+  const last4 = card.nr_karty ? card.nr_karty.slice(-4) : '****';
+
+  const newOnline = confirm(`Czy aktywować płatności internetowe dla karty kończącej się na ${last4}?\n(OK = Tak, Anuluj = Nie)`);
+  const newContactless = confirm(`Czy aktywować płatności zbliżeniowe dla tej karty?\n(OK = Tak, Anuluj = Nie)`);
+
+  try {
+    await axios.patch(`/api/karty/${card.id}/ustawienia-platnosci`, {
+      platnosci_internetowe_aktywne: newOnline,
+      platnosci_zblizeniowe_aktywne: newContactless
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    alert('Zmieniono ustawienia płatności.');
+    const accountId = accounts.value[0].id;
+    await fetchCards(accountId);
+  } catch (error) {
+    console.error('Błąd ustawień płatności:', error);
+    alert('Nie udało się zmienić ustawień płatności.');
+  }
 }
+
+
+
+onMounted(async () => {
+  if (user && user.konta && user.konta.length) {
+    accounts.value = user.konta;
+  } else {
+    await fetchAccounts();
+  }
+  if (accounts.value.length) {
+    const accountId = accounts.value[0].id;
+    await fetchCards(accountId);
+  } else {
+    loading.value = false;
+    console.warn('Brak kont użytkownika.');
+  }
+});
 </script>
 
 <style scoped>
-.input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  outline: none;
-  transition: border-color 0.2s;
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
-.input:focus {
-  border-color: #2563eb;
+
+.payment-card {
+  width: 300px;
+  height: 180px;
+  border-radius: 15px;
+  padding: 20px;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
+}
+.payment-card:hover {
+  transform: scale(1.03);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bank-name {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.chip {
+  width: 40px;
+  height: 30px;
+  background: gold;
+  border-radius: 5px;
+}
+
+.card-number {
+  font-size: 1.4em;
+  letter-spacing: 2px;
+  margin-top: 20px;
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.expiry {
+  font-size: 0.9em;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 400px;
+  width: 100%;
 }
 </style>
