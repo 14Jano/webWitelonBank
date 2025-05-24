@@ -1,155 +1,136 @@
 <template>
-  <div class="max-w-xl mx-auto space-y-6">
-    <h2 class="text-2xl font-bold text-gray-800">Nowy przelew</h2>
+  <div class="p-4">
+    <h2 class="text-xl font-bold mb-4">Wykonaj przelew</h2>
 
-    <form @submit.prevent="sendTransfer" class="space-y-4">
-      <div class="flex items-center gap-2">
-        <input type="checkbox" id="useSaved" v-model="useSavedRecipient" />
-        <label for="useSaved" class="font-medium">Użyj zapisanego odbiorcy</label>
+    <div v-if="!idKontaNadawcy">
+      <p class="text-red-600">Nie udało się załadować konta nadawcy.</p>
+    </div>
+
+    <form v-else @submit.prevent="wyslijPrzelew" class="grid gap-4 max-w-xl">
+      <div>
+        <label class="font-semibold">Numer konta odbiorcy</label>
+        <input v-model="form.nr_konta_odbiorcy" type="text" required class="input" />
       </div>
 
-      <div v-if="useSavedRecipient">
-        <label class="block font-medium mb-1">Wybierz odbiorcę</label>
-        <select v-model="selectedRecipientId" @change="fillRecipientData" class="input">
-          <option value="">-- wybierz --</option>
-          <option v-for="recipient in recipients" :key="recipient.id" :value="recipient.id">
-            {{ recipient.name }} – {{ maskAccount(recipient.accountNumber) }}
-          </option>
+      <div>
+        <label class="font-semibold">Nazwa odbiorcy</label>
+        <input v-model="form.nazwa_odbiorcy" type="text" required class="input" />
+      </div>
+
+      <div>
+        <label class="font-semibold">Adres odbiorcy - linia 1</label>
+        <input v-model="form.adres_odbiorcy_linia1" type="text" required class="input" />
+      </div>
+
+      <div>
+        <label class="font-semibold">Adres odbiorcy - linia 2</label>
+        <input v-model="form.adres_odbiorcy_linia2" type="text" required class="input" />
+      </div>
+
+      <div>
+        <label class="font-semibold">Tytuł przelewu</label>
+        <input v-model="form.tytul" type="text" required class="input" />
+      </div>
+
+      <div>
+        <label class="font-semibold">Kwota</label>
+        <input v-model.number="form.kwota" type="number" step="0.01" min="0.01" required class="input" />
+      </div>
+
+      <div>
+        <label class="font-semibold">Waluta</label>
+        <select v-model="form.waluta_przelewu" class="input">
+          <option value="PLN">PLN</option>
+          <option value="EUR">EUR</option>
         </select>
       </div>
 
-      <div>
-        <label class="block font-medium mb-1">Imię i nazwisko odbiorcy</label>
-        <input v-model="form.receiverName" class="input" required :disabled="useSavedRecipient" />
-      </div>
-
-      <div>
-        <label class="block font-medium mb-1">Numer konta odbiorcy</label>
-        <input
-            v-model="form.accountNumber"
-            class="input"
-            required
-            pattern="\d{26}"
-            :disabled="useSavedRecipient"
-        />
-        <p v-if="form.accountNumber && !/^\d{26}$/.test(form.accountNumber)" class="text-sm text-red-500">
-          Numer konta powinien mieć 26 cyfr.
-        </p>
-      </div>
-
-      <div>
-        <label class="block font-medium mb-1">Kwota</label>
-        <input v-model.number="form.amount" type="number" step="0.01" class="input" required />
-      </div>
-
-      <div>
-        <label class="block font-medium mb-1">Tytuł przelewu</label>
-        <input v-model="form.title" class="input" required />
-      </div>
-
-      <div>
-        <label class="block font-medium mb-1">Data przelewu</label>
-        <input v-model="form.date" type="date" class="input" />
-      </div>
-
-      <div class="flex items-center gap-2">
-        <input type="checkbox" id="saveRecipient" v-model="saveRecipient" />
-        <label for="saveRecipient" class="text-sm">Zapisz tego odbiorcę do listy zapisanych</label>
-      </div>
-
-      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">
-        Wyślij przelew
-      </button>
+      <button type="submit" class="btn">Wyślij przelew</button>
     </form>
 
-    <p v-if="success" class="text-green-600 font-medium mt-4">Przelew został wysłany pomyślnie!</p>
+    <div v-if="komunikat" class="mt-4 text-green-600">{{ komunikat }}</div>
+    <div v-if="blad" class="mt-4 text-red-600">{{ blad }}</div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
+<script setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+import { useAuthStore } from '@/store/auth'
 
-type Recipient = {
-  id: number
-  name: string
-  accountNumber: string
-}
-
-const saveRecipient = ref(false)
-
-
-const recipients = ref<Recipient[]>([
-  { id: 1, name: 'Jan Nowak', accountNumber: '12345678901234567890123456' },
-  { id: 2, name: 'Anna Kowalska', accountNumber: '11112222333344445555666677' },
-])
-
-const selectedRecipientId = ref<number | ''>('')
-const useSavedRecipient = ref(false)
+const authStore = useAuthStore()
+const idKontaNadawcy = ref(null)
+const komunikat = ref('')
+const blad = ref('')
 
 const form = ref({
-  receiverName: '',
-  accountNumber: '',
-  amount: 0,
-  title: '',
-  date: '',
+  nr_konta_odbiorcy: '',
+  nazwa_odbiorcy: '',
+  adres_odbiorcy_linia1: '',
+  adres_odbiorcy_linia2: '',
+  tytul: '',
+  kwota: null,
+  waluta_przelewu: 'PLN'
 })
 
-const success = ref(false)
-
-function fillRecipientData() {
-  const recipient = recipients.value.find(r => r.id === selectedRecipientId.value)
-  if (recipient) {
-    form.value.receiverName = recipient.name
-    form.value.accountNumber = recipient.accountNumber
+onMounted(async () => {
+  try {
+    const res = await axios.get('https://witelonapi.host358482.xce.pl/api/konta', {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`
+      }
+    })
+    const konta = res.data
+    if (konta.length > 0) {
+      idKontaNadawcy.value = konta[0].id
+      console.log('ID konta nadawcy:', idKontaNadawcy.value)
+    } else {
+      blad.value = 'Użytkownik nie posiada żadnego konta.'
+    }
+  } catch (err) {
+    blad.value = 'Błąd podczas pobierania konta nadawcy.'
+    console.error(err)
   }
-}
+})
 
-function sendTransfer() {
-  if (!form.value.receiverName || !form.value.accountNumber || !form.value.amount || !form.value.title) {
-    alert('Uzupełnij wszystkie wymagane pola.')
+const wyslijPrzelew = async () => {
+  blad.value = ''
+  komunikat.value = ''
+
+  if (!idKontaNadawcy.value) {
+    blad.value = 'Brak ID konta nadawcy.'
     return
   }
-  if (saveRecipient.value) {
-    const exists = recipients.value.some(r =>
-        r.name === form.value.receiverName &&
-        r.accountNumber === form.value.accountNumber
-    )
-    if (!exists) {
-      const newId = Date.now()
-      recipients.value.push({
-        id: newId,
-        name: form.value.receiverName,
-        accountNumber: form.value.accountNumber
-      })
-    }
+
+  const dane = {
+    id_konta_nadawcy: idKontaNadawcy.value,
+    ...form.value
   }
 
-  console.log('Wysyłanie przelewu:', form.value)
-
-  success.value = true
-  setTimeout(() => {
-    success.value = false
-    form.value = { receiverName: '', accountNumber: '', amount: 0, title: '', date: '' }
-    selectedRecipientId.value = ''
-    saveRecipient.value = false
-  }, 3000)
-}
-
-function maskAccount(account: string): string {
-  return '••••••' + account.slice(-4)
+  try {
+    const res = await axios.post('https://witelonapi.host358482.xce.pl/api/przelewy', dane, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`
+      }
+    })
+    komunikat.value = 'Przelew został wysłany pomyślnie.'
+    console.log('Odpowiedź serwera:', res.data)
+    form.value = {
+      nr_konta_odbiorcy: '',
+      nazwa_odbiorcy: '',
+      adres_odbiorcy_linia1: '',
+      adres_odbiorcy_linia2: '',
+      tytul: '',
+      kwota: null,
+      waluta_przelewu: 'PLN'
+    }
+  } catch (err) {
+    blad.value = 'Błąd podczas wykonywania przelewu.'
+    console.error(err)
+  }
 }
 </script>
 
 <style scoped>
-.input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.input:focus {
-  border-color: #2563eb;
-}
+
 </style>

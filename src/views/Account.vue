@@ -14,6 +14,7 @@
         {{ tab.label }}
       </button>
     </nav>
+    <AccountList/>
 
     <main class="p-6">
       <component :is="currentTabComponent"></component>
@@ -27,6 +28,7 @@ import SaldoHistoria from '../components/account/History.vue'
 import KartyZarzadzanie from '../components/account/Cards.vue'
 import Transfer from '../components/account/Transfer.vue'
 import UstawieniaKonta from '../components/account/Settings.vue'
+import AccountList from "../components/AccountList.vue";
 
 defineExpose({ SaldoHistoria, KartyZarzadzanie })
 
