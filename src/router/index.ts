@@ -31,6 +31,7 @@ const routes = [
     { path: "/recipients", component: Recipients },
     { path: "/reset-password", component: import('../components/account/ResetPassword.vue') },
     { path: "/forgot-password", component: import('../components/account/ForgotPassword.vue') },
+    { path: "/zlecenia-stale", component: import('../views/RecurringPayments.vue') },
     {
         path: "/account",
         component: Account,
