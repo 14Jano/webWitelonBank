@@ -28,68 +28,94 @@
     </button>
 
     <section class="bg-white p-6 rounded-xl shadow border border-red-300">
-      <h3 class="text-lg font-semibold mb-4 text-red-600">Usuń konto</h3>
-      <p class="text-sm text-gray-700 mb-4">
-        Ta operacja jest nieodwracalna. Konto zostanie trwale usunięte z systemu.
+      <p class="mb-4">
+        Jeśli chcesz zamknąć konto, kliknij przycisk poniżej. Możesz to zrobić tylko, jeśli saldo konta wynosi 0 zł.
       </p>
-      <button class="btn-danger" @click="deleteAccount">Usuń konto</button>
+      <button
+          @click="zamknijKonto"
+          class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded"
+          :disabled="loading"
+      >
+        {{ loading ? 'Przetwarzanie...' : 'Zgłoś zamknięcie konta' }}
+      </button>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useAuthStore } from '@/store/auth.ts'
+import { ref, computed } from 'vue'
+import { useAuthStore } from '@/store/auth'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
-function goToResetPassword() {
-  router.push('/reset-password')
-}
-
 const authStore = useAuthStore()
 
 const firstName = ref(authStore.user?.firstName || '')
 const lastName = ref(authStore.user?.lastName || '')
 const email = ref(authStore.user?.email || '')
 
-const currentPassword = ref('')
-const newPassword = ref('')
-const confirmPassword = ref('')
+const konto = computed(() => authStore.user?.konta?.[0])
+const kontoId = computed(() => konto.value?.id)
+console.log('Zalogowany użytkownik:', authStore.user)
+console.log('Lista kont:', authStore.user?.konta)
+console.log('kontoId:', kontoId.value)
 
+
+const loading = ref(false)
+
+const goToResetPassword = () => {
+  router.push('/reset-password')
+}
 
 const updateProfile = async () => {
   try {
-    // TODO: Wywołaj endpoint do aktualizacji danych
     alert('Dane zaktualizowane pomyślnie.')
   } catch (error) {
     alert('Błąd aktualizacji danych.')
   }
 }
 
-const changePassword = async () => {
-  if (newPassword.value !== confirmPassword.value) {
-    alert('Hasła nie są zgodne.')
+const zamknijKonto = async () => {
+  if (!kontoId.value) {
+    alert('Nie znaleziono informacji o koncie.')
     return
   }
-  try {
-    // TODO: Wywołaj endpoint zmiany hasła
-    alert('Hasło zostało zmienione.')
-  } catch (error) {
-    alert('Błąd podczas zmiany hasła.')
-  }
-}
 
-const deleteAccount = async () => {
-  const confirmed = confirm('Czy na pewno chcesz usunąć konto? Tej operacji nie można cofnąć.')
-  if (!confirmed) return
+  loading.value = true
 
   try {
-    // TODO: Wywołaj endpoint usuwania konta
-    alert('Konto usunięte.')
-    authStore.logout()
-  } catch (error) {
-    alert('Błąd podczas usuwania konta.')
+    const response = await axios.post(
+        `https://witelonapi.host358482.xce.pl/api/konta/${kontoId.value}/zglos-zamkniecie`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        }
+    )
+
+    alert('Wysłano email z linkiem potwierdzającym zamknięcie konta.')
+    console.log(response.data)
+  } catch (error: any) {
+    const status = error.response?.status
+    const msg = error.response?.data?.message
+
+    if (status === 403) {
+      alert('Nie masz uprawnień do tego konta.')
+    } else if (status === 404) {
+      alert('Konto nie zostało znalezione.')
+    } else if (status === 409) {
+      alert('Nie można zamknąć konta: saldo musi wynosić 0 zł lub konto już zostało zablokowane.')
+    } else if (status === 500) {
+      alert('Wystąpił błąd przy wysyłaniu wiadomości email.')
+    } else {
+      alert(msg || 'Nieznany błąd podczas zamykania konta.')
+    }
+
+    console.error('Błąd:', status, msg)
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -114,14 +140,6 @@ const deleteAccount = async () => {
 
 .btn-primary:hover {
   background-color: #1d4ed8;
-}
-
-.btn-secondary {
-  background-color: #e2e8f0;
-  color: #1e293b;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 500;
 }
 
 .btn-danger {

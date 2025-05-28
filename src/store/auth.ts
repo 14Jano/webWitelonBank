@@ -51,7 +51,6 @@ export const useAuthStore = defineStore('auth', {
             try {
                 const response = await axios.post(
                     'https://witelonapi.host358482.xce.pl/api/2fa',
-
                     { email, dwuetapowy_kod },
                     {
                         headers: {
@@ -74,7 +73,20 @@ export const useAuthStore = defineStore('auth', {
                     }
                 )
 
-                this.user = userResponse.data
+                const user = userResponse.data
+
+                const kontaResponse = await axios.get(
+                    'https://witelonapi.host358482.xce.pl/api/konta',
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                )
+
+                user.konta = kontaResponse.data
+
+                this.user = user
                 localStorage.setItem('user', JSON.stringify(this.user))
 
                 return true
