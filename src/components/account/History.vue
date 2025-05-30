@@ -2,6 +2,20 @@
   <div class="p-4 space-y-6">
     <h2 class="text-xl font-bold">Historia transakcji</h2>
 
+    <div class="flex flex-wrap gap-4 items-center mb-4">
+      <input v-model="searchTerm" placeholder="Szukaj tytułu..." class="border p-2 rounded" />
+      <select v-model="filterType" class="border p-2 rounded">
+        <option value="all">Wszystkie</option>
+        <option value="incoming">Przychodzące</option>
+        <option value="outgoing">Wychodzące</option>
+      </select>
+      <input type="date" v-model="dateFrom" class="border p-2 rounded" />
+      <input type="date" v-model="dateTo" class="border p-2 rounded" />
+      <button @click="exportToPDF" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Eksportuj PDF
+      </button>
+    </div>
+
     <div v-if="loading" class="text-gray-500">Ładowanie transakcji...</div>
     <div v-else-if="transactions.length === 0" class="text-gray-500">Brak transakcji do wyświetlenia.</div>
 
@@ -70,9 +84,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '../../store/auth'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 axios.defaults.baseURL = 'https://witelonapi.host358482.xce.pl'
 
@@ -122,6 +138,28 @@ const selectedTx = ref<Tx>({
   raw: {} as RawTx
 })
 
+const searchTerm = ref('') // ✅ Nowe
+const filterType = ref('all') // ✅ Nowe: all/incoming/outgoing
+const dateFrom = ref('')
+const dateTo = ref('')
+
+const filteredTransactions = computed(() => {
+  return transactions.value.filter(tx => {
+    const matchSearch = tx.title.toLowerCase().includes(searchTerm.value.toLowerCase())
+    const matchType =
+        filterType.value === 'all' ||
+        (filterType.value === 'incoming' && tx.isIncoming) ||
+        (filterType.value === 'outgoing' && !tx.isIncoming)
+    const txDate = new Date(tx.date)
+    const from = dateFrom.value ? new Date(dateFrom.value) : null
+    const to = dateTo.value ? new Date(dateTo.value) : null
+    const matchDate =
+        (!from || txDate >= from) && (!to || txDate <= to)
+
+    return matchSearch && matchType && matchDate
+  })
+})
+
 async function fetchTransactions() {
   loading.value = true
   try {
@@ -129,7 +167,7 @@ async function fetchTransactions() {
     if (!token) throw new Error('Brak tokenu')
 
     const kontaRes = await axios.get('/api/konta', { headers: { Authorization: `Bearer ${token}` } })
-    const accounts: RawTx[] = Array.isArray(kontaRes.data) ? kontaRes.data : kontaRes.data.data || []
+    const accounts = Array.isArray(kontaRes.data) ? kontaRes.data : kontaRes.data.data || []
     if (!accounts.length) return
     const accountId = accounts[0].id
 
@@ -143,7 +181,7 @@ async function fetchTransactions() {
       title: tx.tytul,
       amount: tx.kwota,
       currency: tx.waluta,
-      isIncoming: tx.nr_konta_odbiorcy === accountId,
+      isIncoming: tx.nr_konta_odbiorcy === accounts[0].nr_rachunku,
       raw: tx
     }))
   } catch (e) {
@@ -169,8 +207,42 @@ function closeModal() {
   showModal.value = false
 }
 
+// ✅ Eksport do PDF
+function exportToPDF() {
+  const doc = new jsPDF()
+  doc.text('Historia transakcji', 14, 15)
+
+  const rows = filteredTransactions.value.map(tx => [
+    formatDate(tx.date),
+    tx.title,
+    `${tx.amount.toFixed(2)} ${tx.currency}`,
+    tx.isIncoming ? 'Przychodząca' : 'Wychodząca'
+  ])
+
+  autoTable(doc, {
+    startY: 20,
+    head: [['Data', 'Tytuł', 'Kwota', 'Typ']],
+    body: rows
+  })
+
+  // ✅ Dodaj podsumowanie
+  const incomingSum = filteredTransactions.value
+      .filter(tx => tx.isIncoming)
+      .reduce((sum, tx) => sum + tx.amount, 0)
+
+  const outgoingSum = filteredTransactions.value
+      .filter(tx => !tx.isIncoming)
+      .reduce((sum, tx) => sum + tx.amount, 0)
+
+  doc.text(`Suma przychodzących: ${incomingSum.toFixed(2)}`, 14, doc.lastAutoTable.finalY + 10)
+  doc.text(`Suma wychodzących: ${outgoingSum.toFixed(2)}`, 14, doc.lastAutoTable.finalY + 20)
+
+  doc.save('historia_transakcji.pdf')
+}
+
 onMounted(fetchTransactions)
 </script>
+
 
 <style scoped>
 table th,
