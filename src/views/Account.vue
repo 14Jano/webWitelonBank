@@ -30,6 +30,7 @@ import Transfer from '../components/account/Transfer.vue'
 import UstawieniaKonta from '../components/account/Settings.vue'
 import AccountList from "../components/AccountList.vue";
 import PlatnosciCykliczne from '../views/RecurringPayments.vue'
+import ListaOdbiorcow from '../views/Recipients.vue'
 
 defineExpose({ SaldoHistoria, KartyZarzadzanie })
 
@@ -52,7 +53,7 @@ const currentTabComponent = computed(() => {
     case 'przelewy': return Transfer
     case 'karty': return KartyZarzadzanie
     case 'cykliczne': return PlatnosciCykliczne
-    case 'odbiorcy': return 'ListaOdbiorcow'
+    case 'odbiorcy': return ListaOdbiorcow
     case 'powiadomienia': return 'PowiadomieniaUzytkownika'
     case 'eksport': return 'EksportHistorii'
     case 'ustawienia': return UstawieniaKonta
