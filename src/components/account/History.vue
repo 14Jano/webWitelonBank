@@ -11,9 +11,10 @@
       </select>
       <input type="date" v-model="dateFrom" class="border p-2 rounded" />
       <input type="date" v-model="dateTo" class="border p-2 rounded" />
-      <button @click="exportToPDF" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Eksportuj PDF
-      </button>
+      <Button @click="exportToPDF">
+        <FileDown class="mr-2" /> Eksportuj do PDF
+      </Button>
+
     </div>
 
     <div v-if="loading" class="text-gray-500">Ładowanie transakcji...</div>
@@ -87,8 +88,6 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '../../store/auth'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 
 axios.defaults.baseURL = 'https://witelonapi.host358482.xce.pl'
 
@@ -138,8 +137,8 @@ const selectedTx = ref<Tx>({
   raw: {} as RawTx
 })
 
-const searchTerm = ref('') // ✅ Nowe
-const filterType = ref('all') // ✅ Nowe: all/incoming/outgoing
+const searchTerm = ref('')
+const filterType = ref('all')
 const dateFrom = ref('')
 const dateTo = ref('')
 
@@ -207,37 +206,39 @@ function closeModal() {
   showModal.value = false
 }
 
-// ✅ Eksport do PDF
-function exportToPDF() {
-  const doc = new jsPDF()
-  doc.text('Historia transakcji', 14, 15)
+async function exportToPDF() {
+  try {
+    const token = auth.token
+    if (!token) throw new Error('Brak tokenu')
 
-  const rows = filteredTransactions.value.map(tx => [
-    formatDate(tx.date),
-    tx.title,
-    `${tx.amount.toFixed(2)} ${tx.currency}`,
-    tx.isIncoming ? 'Przychodząca' : 'Wychodząca'
-  ])
+    const kontaRes = await axios.get('/api/konta', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    const accounts = Array.isArray(kontaRes.data) ? kontaRes.data : kontaRes.data.data || []
+    if (!accounts.length) throw new Error('Brak kont użytkownika')
 
-  autoTable(doc, {
-    startY: 20,
-    head: [['Data', 'Tytuł', 'Kwota', 'Typ']],
-    body: rows
-  })
+    const accountId = accounts[0].id
 
-  // ✅ Dodaj podsumowanie
-  const incomingSum = filteredTransactions.value
-      .filter(tx => tx.isIncoming)
-      .reduce((sum, tx) => sum + tx.amount, 0)
+    const response = await axios.get(`/api/konta/${accountId}/przelewy/export`, {
+      responseType: 'blob',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
 
-  const outgoingSum = filteredTransactions.value
-      .filter(tx => !tx.isIncoming)
-      .reduce((sum, tx) => sum + tx.amount, 0)
-
-  doc.text(`Suma przychodzących: ${incomingSum.toFixed(2)}`, 14, doc.lastAutoTable.finalY + 10)
-  doc.text(`Suma wychodzących: ${outgoingSum.toFixed(2)}`, 14, doc.lastAutoTable.finalY + 20)
-
-  doc.save('historia_transakcji.pdf')
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `historia_transakcji_konto_${accountId}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    console.error('Błąd podczas eksportu PDF:', e)
+    alert('Nie udało się pobrać pliku PDF z serwera.')
+  }
 }
 
 onMounted(fetchTransactions)

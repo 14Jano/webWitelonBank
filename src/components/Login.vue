@@ -81,7 +81,7 @@ const handleLogin = async () => {
   }
 
   try {
-    const response = await fetch(import.meta.env.VITE_API_URL + '/login', {
+    const response = await fetch('https://witelonapi.host358482.xce.pl/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
