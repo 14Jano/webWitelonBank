@@ -1,6 +1,5 @@
 <template>
   <div class="p-6 space-y-6 max-w-4xl mx-auto">
-    <!-- Dodawanie nowego odbiorcy -->
     <section class="bg-white p-4 rounded shadow">
       <h2 class="text-lg font-semibold mb-4">Dodaj nowego odbiorcę</h2>
       <form @submit.prevent="dodajOdbiorce" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -22,7 +21,6 @@
       </form>
     </section>
 
-    <!-- Lista zapisanych odbiorców -->
     <section class="bg-white p-4 rounded shadow">
       <h2 class="text-lg font-semibold mb-4">Zapisani odbiorcy</h2>
       <div v-if="loading" class="text-gray-500">Ładowanie...</div>
@@ -38,21 +36,20 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="r in recipients" :key="r.id" class="border-t hover:bg-gray-50">
-          <td class="p-2">{{ r.nazwa_odbiorcy_zdefiniowana }}</td>
-          <td class="p-2 font-mono">{{ r.nr_konta_odbiorcy }}</td>
-          <td class="p-2">{{ r.rzeczywista_nazwa_odbiorcy }}</td>
-          <td class="p-2">{{ formatDate(r.created_at) }}</td>
-          <td class="p-2 space-x-2">
-            <button @click="openEditModal(r)" class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edytuj</button>
-            <button @click="usunOdbiorce(r.id)" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Usuń</button>
+        <tr v-for="recipient in recipients" :key="recipient.id">
+          <td>{{ recipient.nazwa_zdefiniowana }}</td>
+          <td>{{ recipient.nr_konta }}</td>
+          <td>{{ recipient.rzeczywista_nazwa }}</td>
+          <td>{{ recipient.dodano }}</td>
+          <td>
+            <button @click="openEditModal(recipient)">Edytuj</button>
+            <button @click="deleteRecipient(recipient.id)">Usuń</button>
           </td>
         </tr>
         </tbody>
       </table>
     </section>
 
-    <!-- Modal Edycji -->
     <div v-if="showEdit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
         <h3 class="text-lg font-semibold mb-4">Edytuj odbiorcę</h3>
@@ -100,14 +97,12 @@ const auth = useAuthStore()
 const recipients = ref<Recipient[]>([])
 const loading = ref(true)
 
-// Nowy odbiorca
 const nowy = reactive({
   nazwa: '',
   nr: '',
   rzeczywista: ''
 })
 
-// Edytowany odbiorca
 const editing = reactive({
   id: 0,
   nazwa: '',
@@ -131,7 +126,7 @@ async function fetchRecipients() {
     const res = await axios.get('/api/zapisani-odbiorcy', {
       headers: { Authorization: `Bearer ${token}` }
     })
-    // jeśli data jest w res.data.data, inaczej w res.data:
+    console.log('Odpowiedź z API:', res.data)
     if (Array.isArray(res.data)) {
       recipients.value = res.data
     } else if (Array.isArray(res.data.data)) {
@@ -159,9 +154,7 @@ async function dodajOdbiorce() {
     await axios.post('/api/zapisani-odbiorcy', payload, {
       headers: { Authorization: `Bearer ${auth.token}` }
     })
-    // odśwież listę
     await fetchRecipients()
-    // wyczyść formularz
     nowy.nazwa = nowy.nr = nowy.rzeczywista = ''
   } catch (err) {
     console.error('Błąd przy dodawaniu odbiorcy:', err)
@@ -198,7 +191,7 @@ async function updateOdbiorce() {
   }
 }
 
-async function usunOdbiorce(id: number) {
+async function deleteRecipient(id: number) {
   if (!confirm('Na pewno usunąć tego odbiorcę?')) return
   try {
     await axios.delete(`/api/zapisani-odbiorcy/${id}`, {
