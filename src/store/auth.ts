@@ -6,8 +6,8 @@ export const useAuthStore = defineStore('auth', {
         user: null as null | {
             id: number
             email: string
-            firstName: string
-            lastName: string,
+            imie: string
+            nazwisko: string,
             konta: [
                 {
                     id: number
@@ -109,8 +109,10 @@ export const useAuthStore = defineStore('auth', {
             this.user = null
             this.token = null
             localStorage.removeItem('user')
+
             localStorage.removeItem('userToken')
             localStorage.removeItem('tempToken')
+            window.location.href = '/login'
         }
     }
 })

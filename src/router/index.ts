@@ -6,11 +6,12 @@ import About from "../views/About.vue";
 import Register from "../views/Register.vue";
 import CloseAccount from "../views/CloseAccount.vue";
 import Dashboard from "../views/Dashboard.vue";
-import ExportTransactions from "../views/ExportTransactions.vue";
-import NotificationsSettings from "../views/NotificationsSettings.vue";
 import Recipients from "../views/Recipients.vue";
 import Account from "../views/Account.vue";
 import AppLayout from "../components/AppLayout.vue";
+import Currencies from "../views/Currencies.vue";
+import Help from "../views/Help.vue";
+import Promo from "../views/Promo.vue";
 
 
 
@@ -19,19 +20,20 @@ const routes = [
     { path: "/about", component: About },
     { path: "/login", component: () => import('../views/LoginPage.vue') },
     { path: "/register", component: Register },
-    { path: "/close-account", component: CloseAccount },
+    { path: '/currencies', name: 'Currencies', component: Currencies },
+    { path: '/help', name: 'Help', component: Help },
+    { path: '/promo', name: 'Promo', component: Promo },
+    { path: "/close-account", component: CloseAccount, meta: { requiresAuth: true } },
     { path: "/dashboard", component: AppLayout, children: [
             { path: "", component: Dashboard },
             { path: 'profile', component: () => import('../views/Account.vue') },
         ],
         meta: { requiresAuth: true }
     },
-    { path: "/export-transactions", component: ExportTransactions },
-    { path: "/notifications-settings", component: NotificationsSettings },
-    { path: "/recipients", component: Recipients },
+    { path: "/recipients", component: Recipients, meta: { requiresAuth: true } },
     { path: "/reset-password", component: import('../components/account/ResetPassword.vue') },
-    { path: "/forgot-password", component: import('../components/account/ForgotPassword.vue') },
-    { path: "/zlecenia-stale", component: import('../views/RecurringPayments.vue') },
+    { path: "/forgot-password", component: import('../components/account/ForgotPassword.vue'), meta: { requiresAuth: true } },
+    { path: "/zlecenia-stale", component: import('../views/RecurringPayments.vue'), meta: { requiresAuth: true } },
     {
         path: "/account",
         component: Account,
@@ -47,7 +49,7 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
     const authStore = useAuthStore()
-    const isAuthenticated = !!authStore.token && localStorage.getItem('userToken')
+    const isAuthenticated = !!authStore.token
 
     if (to.meta.requiresAuth && !isAuthenticated) {
         next('/login')
