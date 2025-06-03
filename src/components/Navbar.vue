@@ -1,7 +1,7 @@
 <template>
   <header class="navbar flex justify-between items-center">
       <div class="logo">
-        <router-link to="/"><FontAwesomeIcon :icon="faBank" id="icon" class="ms-3" style="height: 3rem" /></router-link>
+        <router-link to="/"><img height="64" width="64" src="../assets/WitelonBankLogo.png" alt="Bank Logo"> </router-link>
       </div>
       <nav class="navbar-links">
         <ul class="navbar-list-one flex gap-4 me-130 float-start p-5">
@@ -14,7 +14,7 @@
         </ul>
         <ul class="navbar-list flex gap-4 float-end p-5">
           <template v-if="user">
-            <span>Witaj, {{ user.firstName }}</span>
+            <span>Witaj, {{ user.imie }} {{ user.nazwisko }}</span>
             <button id="logout" @click="authStore.logout">Wyloguj</button>
           </template>
           <template v-else>
@@ -47,7 +47,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '../store/auth.ts'
 import { computed } from 'vue'
-import { faBank } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faUnlock } from '@fortawesome/free-solid-svg-icons'
 import { useI18n } from 'vue-i18n'

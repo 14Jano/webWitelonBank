@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import SaldoHistoria from '../components/account/History.vue'
 import KartyZarzadzanie from '../components/account/Cards.vue'
 import Transfer from '../components/account/Transfer.vue'
@@ -31,6 +31,9 @@ import UstawieniaKonta from '../components/account/Settings.vue'
 import AccountList from "../components/AccountList.vue";
 import PlatnosciCykliczne from '../views/RecurringPayments.vue'
 import ListaOdbiorcow from '../views/Recipients.vue'
+
+import { useAuthStore } from '@/store/auth'
+import { useRouter } from 'vue-router'
 
 defineExpose({ SaldoHistoria, KartyZarzadzanie })
 
@@ -40,12 +43,13 @@ const tabs = [
   { name: 'karty', label: 'Karty Płatnicze' },
   { name: 'cykliczne', label: 'Płatności Cykliczne' },
   { name: 'odbiorcy', label: 'Odbiorcy' },
-  { name: 'powiadomienia', label: 'Powiadomienia' },
-  { name: 'eksport', label: 'Eksport Historii' },
   { name: 'ustawienia', label: 'Ustawienia Konta' },
 ]
 
 const activeTab = ref('saldo')
+const authStore = useAuthStore()
+const router = useRouter()
+
 
 const currentTabComponent = computed(() => {
   switch (activeTab.value) {
@@ -54,12 +58,19 @@ const currentTabComponent = computed(() => {
     case 'karty': return KartyZarzadzanie
     case 'cykliczne': return PlatnosciCykliczne
     case 'odbiorcy': return ListaOdbiorcow
-    case 'powiadomienia': return 'PowiadomieniaUzytkownika'
-    case 'eksport': return 'EksportHistorii'
     case 'ustawienia': return UstawieniaKonta
     default: return 'SaldoHistoria'
   }
 })
+watch(
+    () => authStore.token,
+    (newToken) => {
+      if (!newToken) {
+        router.push('/login')
+      }
+    },
+    { immediate: true }
+)
 </script>
 
 <style scoped>

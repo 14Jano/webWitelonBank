@@ -5,7 +5,7 @@
       <div class="container">
         <h2>Twoje finanse w jednym miejscu</h2>
         <p>Zarządzaj swoimi kontami, przelewami i oszczędnościami w prosty sposób.</p>
-        <div class="cta-buttons">
+        <div class="cta-buttons" v-if="!auth.isLoggedIn">
           <router-link to="/login" class="btn">Zaloguj się</router-link>
           <router-link to="/register" class="btn btn-secondary">Zarejestruj się</router-link>
         </div>
@@ -57,6 +57,8 @@
 </template>
 
 <script setup lang="ts">
+import {useAuthStore} from "@/store/auth.ts";
+const auth = useAuthStore();
 </script>
 
 <style scoped>
