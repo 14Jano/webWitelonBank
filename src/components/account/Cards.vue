@@ -1,94 +1,123 @@
 <template>
-  <div>
+  <div class="cards-container">
     <h2>Karty Płatnicze</h2>
-    <div v-if="loading">Ładowanie kart...</div>
+    <div v-if="loading" class="loading-state">Ładowanie kart...</div>
+
     <div v-else>
-      <div v-if="cards.length" class="card-grid">
-        <div
-            v-for="card in cards"
-            :key="card.id"
-            class="payment-card"
-            @click="openCard(card)"
-        >
-          <div class="card-top">
-            <span class="bank-name">{{ bankName }}</span>
-            <span class="chip"></span>
-          </div>
-          <div class="card-number">
-            {{ maskCardNumber(card.nr_karty) }}
-          </div>
-          <div class="card-bottom">
-            <div class="expiry">
-              <label>Ważna do: </label>
-              <span>{{ formatDateShort(card.data_waznosci) }}</span>
+      <div v-if="cards.length" class="card-list">
+        <div v-for="card in cards" :key="card.id" class="card-item-wrapper">
+          <div class="payment-card" @click="openCard(card)">
+            <div class="card-header">
+              <span class="bank-logo"></span>
+              <span class="bank-name">{{ bankName }}</span>
             </div>
-            <p>Status:
-              <span :class="card.zablokowana ? 'text-red-600' : 'text-green-600'">
-                {{ card.zablokowana ? 'Zablokowana' : 'Aktywna' }}
-              </span>
-            </p>
+            <div class="card-number-display">
+              {{ maskCardNumber(card.nr_karty) }}
+            </div>
+            <div class="card-details">
+              <div class="expiry-date">
+                <label>Ważna do:</label>
+                <span>{{ formatDateShort(card.data_waznosci) }}</span>
+              </div>
+              <div class="card-status">
+                <p>Status:
+                  <span :class="card.zablokowana ? 'status-red' : 'status-green'">
+                    {{ card.zablokowana ? 'Zablokowana' : 'Aktywna' }}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button
+                v-if="!card.zablokowana"
+                @click.stop="confirmBlock(card.id)"
+                class="action-button block-button">
+              Zablokuj kartę
+            </button>
             <button
                 v-if="card.zablokowana"
                 @click.stop="confirmUnblock(card.id)"
-                class="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600"
-            >
+                class="action-button unblock-button">
               Odblokuj kartę
             </button>
             <button
-                v-else
-                @click.stop="confirmBlock(card.id)"
-                class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
-            >
-              Zablokuj kartę
-            </button>
-
-            <button
-                @click.stop="changeLimit(card)"
-                class="bg-yellow-500 text-white px-4 py-1 rounded hover:bg-yellow-600"
-            >
+                @click.stop="openLimitModal(card)"
+                class="action-button limit-button">
               Zmień limit
             </button>
             <button
-                @click.stop="changePaymentSettings(card)"
-                class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
-            >
+                @click.stop="openPaymentSettingsModal(card)"
+                class="action-button settings-button">
               Ustawienia płatności
             </button>
-
-
           </div>
         </div>
       </div>
-      <div v-else>
+      <div v-else class="no-cards-state">
         Brak kart do wyświetlenia.
       </div>
     </div>
 
-    <div v-if="selectedCard" class="modal-overlay">
+    <div v-if="selectedCard" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
         <h3>Szczegóły Karty</h3>
         <p><strong>ID:</strong> {{ selectedCard.id }}</p>
-        <p><strong>Numer karty:</strong> {{ selectedCard.nr_karty_masked }}</p>
+        <p><strong>Numer karty:</strong> {{ selectedCard.nr_karty ? maskCardNumber(selectedCard.nr_karty) : 'Brak danych' }}</p>
         <p><strong>Data ważności:</strong> {{ formatDate(selectedCard.data_waznosci) }}</p>
         <p><strong>Limit dzienny:</strong> {{ selectedCard.limit_dzienny }} PLN</p>
         <p>
           <strong>Status:</strong>
-          <span :style="{ color: selectedCard.zablokowana ? 'red' : 'green' }">
-            {{ selectedCard.zablokowana ? ' Zablokowana' : ' Aktywna' }}
+          <span :class="selectedCard.zablokowana ? 'status-red' : 'status-green'">
+            {{ selectedCard.zablokowana ? 'Zablokowana' : 'Aktywna' }}
           </span>
         </p>
         <p><strong>Płatności internetowe:</strong>
-          <span :style="{ color: selectedCard.platnosci_internetowe_aktywne ? 'green' : 'red' }">
+          <span :class="selectedCard.platnosci_internetowe_aktywne ? 'status-green' : 'status-red'">
             {{ selectedCard.platnosci_internetowe_aktywne ? 'Aktywne' : 'Zablokowane' }}
           </span>
         </p>
         <p><strong>Płatności zbliżeniowe:</strong>
-          <span :style="{ color: selectedCard.platnosci_zblizeniowe_aktywne ? 'green' : 'red' }">
+          <span :class="selectedCard.platnosci_zblizeniowe_aktywne ? 'status-green' : 'status-red'">
             {{ selectedCard.platnosci_zblizeniowe_aktywne ? 'Aktywne' : 'Zablokowane' }}
         </span>
         </p>
 
-        <button @click="closeModal">Zamknij</button>
+        <button @click="closeModal" class="modal-close-button">Zamknij</button>
+      </div>
+    </div>
+
+    <div v-if="showLimitModal" class="modal-overlay" @click.self="closeLimitModal">
+      <div class="modal-content">
+        <h3>Zmień dzienny limit karty</h3>
+        <p>Karta: {{ maskCardNumber(editingCard.nr_karty) }}</p>
+        <div class="form-group">
+          <label for="newLimit">Nowy limit dzienny (PLN):</label>
+          <input type="number" id="newLimit" v-model.number="newLimitValue" min="0.01" step="0.01" />
+        </div>
+        <div class="modal-actions">
+          <button @click="submitLimitChange" class="action-button settings-button">Zapisz</button>
+          <button @click="closeLimitModal" class="modal-close-button">Anuluj</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showPaymentSettingsModal" class="modal-overlay" @click.self="closePaymentSettingsModal">
+      <div class="modal-content">
+        <h3>Ustawienia płatności karty</h3>
+        <p>Karta: {{ maskCardNumber(editingCard.nr_karty) }}</p>
+        <div class="form-group">
+          <input type="checkbox" id="onlinePayments" v-model="onlinePaymentsActive" />
+          <label for="onlinePayments">Płatności internetowe</label>
+        </div>
+        <div class="form-group">
+          <input type="checkbox" id="contactlessPayments" v-model="contactlessPaymentsActive" />
+          <label for="contactlessPayments">Płatności zbliżeniowe</label>
+        </div>
+        <div class="modal-actions">
+          <button @click="submitPaymentSettingsChange" class="action-button settings-button">Zapisz</button>
+          <button @click="closePaymentSettingsModal" class="modal-close-button">Anuluj</button>
+        </div>
       </div>
     </div>
   </div>
@@ -109,14 +138,22 @@ const loading = ref(true);
 const selectedCard = ref(null);
 const bankName = 'Witelon Bank';
 
+const showLimitModal = ref(false);
+const showPaymentSettingsModal = ref(false);
+const editingCard = ref(null);
+const newLimitValue = ref(0);
+const onlinePaymentsActive = ref(false);
+const contactlessPaymentsActive = ref(false);
+
 function maskCardNumber(number) {
   if (!number) return '**** **** **** ****';
-  return number.replace(/(\d{4})(?=\d)/g, '$1 ').replace(/.(?=.{5})/g, '*');
+  const numString = String(number);
+  return `**** **** **** ${numString.slice(-4)}`;
 }
 
 function formatDate(dateStr) {
   const date = new Date(dateStr);
-  return date.toLocaleDateString();
+  return date.toLocaleDateString('pl-PL');
 }
 
 function formatDateShort(dateStr) {
@@ -134,6 +171,76 @@ function closeModal() {
   selectedCard.value = null;
 }
 
+function openLimitModal(card) {
+  editingCard.value = card;
+  newLimitValue.value = card.limit_dzienny;
+  showLimitModal.value = true;
+}
+
+function closeLimitModal() {
+  showLimitModal.value = false;
+  editingCard.value = null;
+  newLimitValue.value = 0;
+}
+
+async function submitLimitChange() {
+  if (!newLimitValue.value || isNaN(newLimitValue.value) || Number(newLimitValue.value) <= 0) {
+    alert('Nieprawidłowy limit. Wprowadź liczbę większą od zera.');
+    return;
+  }
+
+  try {
+    await axios.patch(`/api/karty/${editingCard.value.id}/limit`, {
+      limit_dzienny: parseFloat(newLimitValue.value)
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    alert('Limit zmieniony pomyślnie!');
+    closeLimitModal();
+    const accountId = accounts.value[0].id;
+    await fetchCards(accountId);
+  } catch (error) {
+    console.error('Błąd podczas zmiany limitu:', error);
+    alert('Nie udało się zmienić limitu.');
+  }
+}
+
+function openPaymentSettingsModal(card) {
+  editingCard.value = card;
+  onlinePaymentsActive.value = card.platnosci_internetowe_aktywne;
+  contactlessPaymentsActive.value = card.platnosci_zblizeniowe_aktywne;
+  showPaymentSettingsModal.value = true;
+}
+
+function closePaymentSettingsModal() {
+  showPaymentSettingsModal.value = false;
+  editingCard.value = null;
+  onlinePaymentsActive.value = false;
+  contactlessPaymentsActive.value = false;
+}
+
+async function submitPaymentSettingsChange() {
+  try {
+    await axios.patch(`/api/karty/${editingCard.value.id}/ustawienia-platnosci`, {
+      platnosci_internetowe_aktywne: onlinePaymentsActive.value,
+      platnosci_zblizeniowe_aktywne: contactlessPaymentsActive.value
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    alert('Zmieniono ustawienia płatności.');
+    closePaymentSettingsModal();
+    const accountId = accounts.value[0].id;
+    await fetchCards(accountId);
+  } catch (error) {
+    console.error('Błąd ustawień płatności:', error);
+    alert('Nie udało się zmienić ustawień płatności.');
+  }
+}
+
 async function fetchAccounts() {
   try {
     const response = await axios.get('/api/konta', {
@@ -148,7 +255,6 @@ async function fetchAccounts() {
 }
 
 async function fetchCards(accountId) {
-
   try {
     const response = await axios.get(`/api/konta/${accountId}/karty`, {
       headers: {
@@ -185,6 +291,7 @@ async function blockCard(cardId) {
     await fetchCards(accountId);
   } catch (error) {
     console.error('Błąd podczas blokowania karty:', error);
+    alert('Nie udało się zablokować karty.');
   }
 }
 
@@ -197,57 +304,9 @@ async function unblockCard(cardId) {
     await fetchCards(accountId);
   } catch (error) {
     console.error('Błąd podczas odblokowywania karty:', error);
+    alert('Nie udało się odblokować karty.');
   }
 }
-
-async function changeLimit(card) {
-  const newLimit = prompt(`Podaj nowy dzienny limit dla karty ${card.nr_karty_masked}:`, card.limit_dzienny);
-  if (!newLimit || isNaN(newLimit) || Number(newLimit) <= 0) {
-    alert('Nieprawidłowy limit.');
-    return;
-  }
-
-  try {
-    await axios.patch(`/api/karty/${card.id}/limit`, {
-      limit_dzienny: parseFloat(newLimit)
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    const accountId = accounts.value[0].id;
-    await fetchCards(accountId);
-  } catch (error) {
-    console.error('Błąd podczas zmiany limitu:', error);
-    alert('Nie udało się zmienić limitu.');
-  }
-}
-
-async function changePaymentSettings(card) {
-  const last4 = card.nr_karty ? card.nr_karty.slice(-4) : '****';
-
-  const newOnline = confirm(`Czy aktywować płatności internetowe dla karty kończącej się na ${last4}?\n(OK = Tak, Anuluj = Nie)`);
-  const newContactless = confirm(`Czy aktywować płatności zbliżeniowe dla tej karty?\n(OK = Tak, Anuluj = Nie)`);
-
-  try {
-    await axios.patch(`/api/karty/${card.id}/ustawienia-platnosci`, {
-      platnosci_internetowe_aktywne: newOnline,
-      platnosci_zblizeniowe_aktywne: newContactless
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    alert('Zmieniono ustawienia płatności.');
-    const accountId = accounts.value[0].id;
-    await fetchCards(accountId);
-  } catch (error) {
-    console.error('Błąd ustawień płatności:', error);
-    alert('Nie udało się zmienić ustawień płatności.');
-  }
-}
-
-
 
 onMounted(async () => {
   if (user && user.konta && user.konta.length) {
@@ -266,62 +325,196 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.card-grid {
+.cards-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 25px;
+  font-size: 1.8em;
+  font-weight: 600;
+}
+
+.loading-state, .no-cards-state {
+  text-align: center;
+  color: #666;
+  font-size: 1.1em;
+  margin-top: 30px;
+}
+
+.card-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 30px;
+  justify-content: center;
+}
+
+.card-item-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
 .payment-card {
-  width: 300px;
-  height: 180px;
+  width: 320px;
+  height: 200px;
   border-radius: 15px;
-  padding: 20px;
+  padding: 25px;
   background: linear-gradient(135deg, #1e3c72, #2a5298);
-  color: white;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 0.2s ease;
-}
-.payment-card:hover {
-  transform: scale(1.03);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card-top {
+.payment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+}
+
+.payment-card::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  background-color: #ffc107;
+  border-radius: 10px;
+  transform: rotate(45deg);
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.7);
+}
+
+.card-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
+  margin-bottom: 15px;
 }
 
 .bank-name {
-  font-size: 1.2em;
+  font-size: 1.3em;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #fff;
+  margin-left: auto;
+}
+
+.card-number-display {
+  font-size: 1.8em;
+  letter-spacing: 3px;
+  font-weight: 500;
+  margin-top: 30px;
+  text-align: center;
+}
+
+.card-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.expiry-date {
+  font-size: 0.95em;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.expiry-date label {
+  font-size: 0.8em;
+  margin-bottom: 2px;
+  opacity: 0.8;
+}
+
+.expiry-date span {
+  font-weight: 600;
+}
+
+.card-status {
+  font-size: 0.95em;
+  text-align: right;
+}
+
+.card-status p {
+  margin: 0;
+}
+
+.status-red {
+  color: #f87171;
   font-weight: bold;
 }
 
-.chip {
-  width: 40px;
-  height: 30px;
-  background: gold;
-  border-radius: 5px;
+.status-green {
+  color: #4ade80;
+  font-weight: bold;
 }
 
-.card-number {
-  font-size: 1.4em;
-  letter-spacing: 2px;
-  margin-top: 20px;
-}
-
-.card-bottom {
+.card-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
 }
 
-.expiry {
-  font-size: 0.9em;
+.action-button {
+  padding: 10px 18px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  flex: 1 1 auto;
+  min-width: 140px;
+  white-space: nowrap;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.block-button {
+  background-color: #ef4444;
+}
+.block-button:hover {
+  background-color: #dc2626;
+}
+
+.unblock-button {
+  background-color: #22c55e;
+}
+.unblock-button:hover {
+  background-color: #16a34a;
+}
+
+.limit-button {
+  background-color: #f59e0b;
+}
+.limit-button:hover {
+  background-color: #d97706;
+}
+
+.settings-button {
+  background-color: #3b82f6;
+}
+.settings-button:hover {
+  background-color: #2563eb;
 }
 
 .modal-overlay {
@@ -330,16 +523,126 @@ onMounted(async () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
+
 .modal-content {
   background: white;
-  padding: 20px;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  position: relative;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-content h3 {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.modal-content p {
+  margin-bottom: 10px;
+  line-height: 1.5;
+  color: #555;
+}
+
+.modal-content strong {
+  color: #333;
+}
+
+.modal-close-button {
+  background-color: #6c757d;
+  color: white;
+  padding: 10px 20px;
+  border: none;
   border-radius: 5px;
-  max-width: 400px;
-  width: 100%;
+  cursor: pointer;
+  margin-top: 20px;
+  font-size: 1em;
+  transition: background-color 0.2s ease;
+}
+
+.modal-close-button:hover {
+  background-color: #5a6268;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.form-group label {
+  margin-right: 10px;
+  color: #333;
+  font-weight: 500;
+}
+
+.form-group input[type="number"] {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  flex-grow: 1;
+}
+
+.form-group input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@media (min-width: 768px) {
+  .card-item-wrapper {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .card-actions {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: auto;
+    max-width: fit-content;
+  }
+}
+
+@media (max-width: 767px) {
+  .card-item-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+  .card-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 320px;
+  }
+  .action-button {
+    min-width: 130px;
+    padding: 8px 15px;
+  }
 }
 </style>
