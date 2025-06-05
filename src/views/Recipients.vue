@@ -36,19 +36,43 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="recipient in recipients" :key="recipient.id">
-          <td>{{ recipient.nazwa_zdefiniowana }}</td>
-          <td>{{ recipient.nr_konta }}</td>
-          <td>{{ recipient.rzeczywista_nazwa }}</td>
-          <td>{{ recipient.dodano }}</td>
-          <td>
-            <button @click="openEditModal(recipient)">Edytuj</button>
-            <button @click="deleteRecipient(recipient.id)">Usuń</button>
+        <tr
+            v-for="recipient in recipients"
+            :key="recipient.id"
+            @click="openDetailsModal(recipient)"
+            class="cursor-pointer hover:bg-blue-50"
+        >
+          <td class="p-2">{{ recipient.nazwa_zdefiniowana }}</td>
+          <td class="p-2">{{ recipient.nr_konta }}</td>
+          <td class="p-2">{{ recipient.rzeczywista_nazwa }}</td>
+          <td class="p-2">{{ formatDate(recipient.dodano) }}</td>
+          <td class="p-2">
+            <button @click.stop="openEditModal(recipient)" class="btn-action btn-edit mr-2">Edytuj</button>
+            <button @click.stop="deleteRecipient(recipient.id)" class="btn-action btn-delete">Usuń</button>
           </td>
         </tr>
         </tbody>
       </table>
     </section>
+
+    <div v-if="showDetailsModal && selectedRecipient" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+        <h3 class="text-lg font-semibold mb-4">Szczegóły odbiorcy: {{ selectedRecipient.nazwa_zdefiniowana }}</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+          <div>
+            <p><strong class="font-medium">ID:</strong> {{ selectedRecipient.id }}</p>
+            <p><strong class="font-medium">ID Użytkownika:</strong> {{ selectedRecipient.id_uzytkownika }}</p>
+            <p><strong class="font-medium">Nazwa zdefiniowana:</strong> {{ selectedRecipient.nazwa_zdefiniowana }}</p>
+            <p><strong class="font-medium">Numer konta:</strong> {{ selectedRecipient.nr_konta }}</p>
+            <p><strong class="font-medium">Rzeczywista nazwa:</strong> {{ selectedRecipient.rzeczywista_nazwa }}</p>
+            <p><strong class="font-medium">Utworzono:</strong> {{ formatDate(selectedRecipient.dodano) }}</p>
+          </div>
+        </div>
+        <div class="text-right mt-4">
+          <button @click="closeDetailsModal" class="btn-secondary">Zamknij</button>
+        </div>
+      </div>
+    </div>
 
     <div v-if="showEdit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
@@ -84,11 +108,10 @@ import { useAuthStore } from '../store/auth'
 interface Recipient {
   id: number
   id_uzytkownika: number
-  nazwa_odbiorcy_zdefiniowana: string
-  nr_konta_odbiorcy: string
-  rzeczywista_nazwa_odbiorcy: string
-  created_at: string
-  updated_at: string
+  nazwa_zdefiniowana: string
+  nr_konta: string
+  rzeczywista_nazwa: string
+  dodano: string
 }
 
 axios.defaults.baseURL = 'https://witelonapi.host358482.xce.pl'
@@ -96,6 +119,8 @@ axios.defaults.baseURL = 'https://witelonapi.host358482.xce.pl'
 const auth = useAuthStore()
 const recipients = ref<Recipient[]>([])
 const loading = ref(true)
+const selectedRecipient = ref<Recipient | null>(null)
+const showDetailsModal = ref(false)
 
 const nowy = reactive({
   nazwa: '',
@@ -162,11 +187,21 @@ async function dodajOdbiorce() {
   }
 }
 
+function openDetailsModal(recipient: Recipient) {
+  selectedRecipient.value = recipient
+  showDetailsModal.value = true
+}
+
+function closeDetailsModal() {
+  showDetailsModal.value = false
+  selectedRecipient.value = null
+}
+
 function openEditModal(r: Recipient) {
   editing.id = r.id
-  editing.nazwa = r.nazwa_odbiorcy_zdefiniowana
-  editing.nr = r.nr_konta_odbiorcy
-  editing.rzeczywista = r.rzeczywista_nazwa_odbiorcy
+  editing.nazwa = r.nazwa_zdefiniowana
+  editing.nr = r.nr_konta
+  editing.rzeczywista = r.rzeczywista_nazwa
   showEdit.value = true
 }
 
@@ -185,6 +220,9 @@ async function updateOdbiorce() {
     })
     await fetchRecipients()
     closeEditModal()
+    if (selectedRecipient.value && selectedRecipient.value.id === editing.id) {
+      selectedRecipient.value = recipients.value.find(r => r.id === editing.id) || null;
+    }
   } catch (err) {
     console.error('Błąd przy edycji odbiorcy:', err)
     alert('Nie udało się zaktualizować odbiorcy.')
@@ -198,6 +236,10 @@ async function deleteRecipient(id: number) {
       headers: { Authorization: `Bearer ${auth.token}` }
     })
     await fetchRecipients()
+    if (selectedRecipient.value && selectedRecipient.value.id === id) {
+      selectedRecipient.value = null;
+      showDetailsModal.value = false;
+    }
   } catch (err) {
     console.error('Błąd przy usuwaniu odbiorcy:', err)
     alert('Nie udało się usunąć odbiorcy.')
@@ -219,11 +261,45 @@ onMounted(fetchRecipients)
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 6px;
+  transition: background-color 0.2s ease-in-out;
+}
+.btn-primary:hover {
+  background-color: #0d956e;
 }
 .btn-secondary {
   background: #e5e7eb;
   color: #374151;
   padding: 0.5rem 1rem;
   border-radius: 6px;
+  transition: background-color 0.2s ease-in-out;
+}
+.btn-secondary:hover {
+  background-color: #d1d5db;
+}
+
+
+.btn-action {
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background-color: #60a5fa;
+  color: white;
+}
+.btn-edit:hover {
+  background-color: #3b82f6;
+}
+
+.btn-delete {
+  background-color: #ef4444;
+  color: white;
+}
+.btn-delete:hover {
+  background-color: #dc2626;
 }
 </style>

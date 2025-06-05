@@ -1,43 +1,29 @@
 <template>
-  <div class="max-w-2xl mx-auto space-y-8">
-    <h2 class="text-2xl font-bold text-gray-800">Ustawienia Konta</h2>
+  <div class="max-w-2xl mx-auto p-6 space-y-8 bg-gray-50 rounded-lg shadow-lg">
+    <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-6">Ustawienia Konta</h2>
 
-    <section class="bg-white p-6 rounded-xl shadow">
-      <h3 class="text-lg font-semibold mb-4">Dane osobowe</h3>
-      <form @submit.prevent="updateProfile" class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium">Imię</label>
-            <input v-model="firstName" type="text" class="input" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Nazwisko</label>
-            <input v-model="lastName" type="text" class="input" />
-          </div>
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Email</label>
-          <input v-model="email" type="email" class="input" />
-        </div>
-        <button class="btn-primary" type="submit">Zapisz zmiany</button>
-      </form>
-    </section>
-
-    <button class="btn-primary mt-4" @click="goToResetPassword">
-      Resetowanie hasła
-    </button>
-
-    <section class="bg-white p-6 rounded-xl shadow border border-red-300">
-      <p class="mb-4">
-        Jeśli chcesz zamknąć konto, kliknij przycisk poniżej. Możesz to zrobić tylko, jeśli saldo konta wynosi 0 zł.
-      </p>
+    <div class="flex justify-center">
       <button
-          @click="zamknijKonto"
-          class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded"
-          :disabled="loading"
+          class="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+          @click="goToResetPassword"
       >
-        {{ loading ? 'Przetwarzanie...' : 'Zgłoś zamknięcie konta' }}
+        Resetowanie hasła
       </button>
+    </div>
+
+    <section class="bg-white p-8 rounded-xl shadow-lg border border-red-400">
+      <p class="mb-6 text-gray-700 leading-relaxed text-center">
+        Jeśli chcesz zamknąć konto, kliknij przycisk poniżej. Możesz to zrobić tylko, jeśli saldo konta wynosi <span class="font-bold text-red-600">0 zł</span>.
+      </p>
+      <div class="flex justify-center">
+        <button
+            @click="zamknijKonto"
+            class="w-full sm:w-auto px-8 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+            :disabled="loading"
+        >
+          {{ loading ? 'Przetwarzanie...' : 'Zgłoś zamknięcie konta' }}
+        </button>
+      </div>
     </section>
   </div>
 </template>
@@ -51,9 +37,6 @@ import axios from 'axios'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const firstName = ref(authStore.user?.firstName || '')
-const lastName = ref(authStore.user?.lastName || '')
-const email = ref(authStore.user?.email || '')
 
 const konto = computed(() => authStore.user?.konta?.[0])
 const kontoId = computed(() => konto.value?.id)
@@ -66,14 +49,6 @@ const loading = ref(false)
 
 const goToResetPassword = () => {
   router.push('/reset-password')
-}
-
-const updateProfile = async () => {
-  try {
-    alert('Dane zaktualizowane pomyślnie.')
-  } catch (error) {
-    alert('Błąd aktualizacji danych.')
-  }
 }
 
 const zamknijKonto = async () => {
@@ -121,36 +96,4 @@ const zamknijKonto = async () => {
 </script>
 
 <style scoped>
-.input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-.btn-primary {
-  background-color: #2563eb;
-  color: white;
-  padding: 0.5rem 1.25rem;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: background-color 0.3s;
-}
-
-.btn-primary:hover {
-  background-color: #1d4ed8;
-}
-
-.btn-danger {
-  background-color: #dc2626;
-  color: white;
-  padding: 0.5rem 1.25rem;
-  border-radius: 8px;
-  font-weight: 600;
-}
-
-.btn-danger:hover {
-  background-color: #b91c1c;
-}
 </style>
