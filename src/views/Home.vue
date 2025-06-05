@@ -1,6 +1,5 @@
 <template>
   <main class="home-page">
-
     <section class="hero">
       <div class="container">
         <h2>Twoje finanse w jednym miejscu</h2>
@@ -63,8 +62,9 @@ const auth = useAuthStore();
 
 <style scoped>
 .home-page {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   line-height: 1.6;
+  background-color: #ffffff;
 }
 
 .container {
@@ -75,20 +75,24 @@ const auth = useAuthStore();
 
 .hero {
   padding: 4rem 1rem;
-  background-color: #f8fafc;
+  background-color: #071d44;
   text-align: center;
+  color: white;
+  border-bottom-left-radius: 3rem;
+  border-bottom-right-radius: 3rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
 .hero h2 {
   font-size: 3rem;
   margin-bottom: 1rem;
-  color: #1d4ed8;
+  color: #ffffff;
 }
 
 .hero p {
   font-size: 1.25rem;
   margin-bottom: 2rem;
-  color: #334155;
+  color: #e0e0e0;
 }
 
 .cta-buttons {
@@ -102,28 +106,38 @@ const auth = useAuthStore();
   display: inline-block;
   padding: 0.75rem 2rem;
   font-size: 1rem;
-  color: white;
-  background-color: #2563eb;
+  color: #071d44;
+  background-color: white;
   border: none;
   border-radius: 9999px;
   text-decoration: none;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  border: 2px solid white;
 }
 
 .cta-buttons .btn-secondary {
-  background-color: #1d4ed8;
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
 }
 
 .cta-buttons .btn:hover {
-  background-color: #1e40af;
+  background-color: #e0e7ff;
+  color: #071d44;
 }
 
 .features {
   padding: 4rem 1rem;
-  background-color: #e5e7eb;
+  background-color: #f3f4f6;
   text-align: center;
+}
+
+.features h2 {
+  color: #071d44;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
 }
 
 .feature-list {
@@ -131,7 +145,6 @@ const auth = useAuthStore();
   justify-content: center;
   flex-wrap: wrap;
   gap: 2rem;
-  margin-top: 2rem;
 }
 
 .feature {
@@ -140,7 +153,6 @@ const auth = useAuthStore();
   padding: 2rem;
   border-radius: 16px;
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -152,7 +164,7 @@ const auth = useAuthStore();
 .feature h3 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #1d4ed8;
+  color: #071d44;
 }
 
 .feature p {
@@ -161,8 +173,13 @@ const auth = useAuthStore();
 
 .testimonials {
   padding: 4rem 1rem;
-  background-color: #f8fafc;
+  background-color: #ffffff;
   text-align: center;
+}
+
+.testimonials h2 {
+  color: #071d44;
+  font-size: 2.5rem;
 }
 
 .testimonial-list {
@@ -175,10 +192,10 @@ const auth = useAuthStore();
 
 .testimonial {
   max-width: 600px;
-  background-color: white;
+  background-color: #f8fafc;
   padding: 2rem;
   border-radius: 16px;
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
   text-align: center;
 }
 
@@ -190,11 +207,11 @@ const auth = useAuthStore();
 
 .testimonial span {
   font-weight: bold;
-  color: #1d4ed8;
+  color: #071d44;
 }
 
 .footer {
-  background-color: #1d4ed8;
+  background-color: #071d44;
   color: white;
   text-align: center;
   padding: 2rem 1rem;
@@ -202,5 +219,4 @@ const auth = useAuthStore();
   border-top-left-radius: 2rem;
   border-top-right-radius: 2rem;
 }
-
 </style>
