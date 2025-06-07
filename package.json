@@ -6,7 +6,7 @@
   "scripts": {
     "test": "vitest",
     "dev": "vite",
-    "build": "vite build",
+    "build": "vue-tsc -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
