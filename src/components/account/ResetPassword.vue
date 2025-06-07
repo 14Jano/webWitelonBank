@@ -41,7 +41,7 @@ const resetPassword = async () => {
   success.value = false
   loading.value = true
   try {
-    const res = await fetch(import.meta.env.VITE_API_URL + '/reset-password', {
+    const res = await fetch('https://witelonapi.host358482.xce.pl/api/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

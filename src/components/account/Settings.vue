@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useAuthStore } from '@/store/auth'
+import { useAuthStore } from '../../store/auth.ts'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 

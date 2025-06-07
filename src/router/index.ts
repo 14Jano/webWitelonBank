@@ -12,6 +12,7 @@ import AppLayout from "../components/AppLayout.vue";
 import Currencies from "../views/Currencies.vue";
 import Help from "../views/Help.vue";
 import Promo from "../views/Promo.vue";
+import ResetPassword from "../components/account/ResetPassword.vue";
 
 
 
@@ -32,8 +33,8 @@ const routes = [
     },
     { path: "/recipients", component: Recipients, meta: { requiresAuth: true } },
     { path: "/reset-password", component: import('../components/account/ResetPassword.vue') },
-    { path: "/forgot-password", component: import('../components/account/ForgotPassword.vue'), meta: { requiresAuth: true } },
-    { path: "/zlecenia-stale", component: import('../views/RecurringPayments.vue'), meta: { requiresAuth: true } },
+    { path: "/forgot-password", component: () => import('../components/account/ForgotPassword.vue') },
+    { path: "/zlecenia-stale", component: ResetPassword, meta: { requiresAuth: true } },
     {
         path: "/account",
         component: Account,
