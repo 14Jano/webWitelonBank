@@ -1,47 +1,47 @@
 <template>
   <div class="p-6 space-y-6 max-w-4xl mx-auto">
     <section class="bg-white p-4 rounded shadow">
-      <h2 class="text-lg font-semibold mb-4">Dodaj nowego odbiorcę</h2>
+      <h2 class="text-lg font-semibold mb-4">{{ $t('recipients.addRecipient.title') }}</h2>
       <form @submit.prevent="dodajOdbiorce" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block mb-1">Nazwa zdefiniowana</label>
+          <label class="block mb-1">{{ $t('recipients.addRecipient.form.definedName') }}</label>
           <input v-model="nowy.nazwa" type="text" class="input" required />
         </div>
         <div>
-          <label class="block mb-1">Numer konta odbiorcy</label>
+          <label class="block mb-1">{{ $t('recipients.addRecipient.form.accountNumber') }}</label>
           <input v-model="nowy.nr" type="text" class="input font-mono" required />
         </div>
         <div class="md:col-span-2">
-          <label class="block mb-1">Rzeczywista nazwa odbiorcy</label>
+          <label class="block mb-1">{{ $t('recipients.addRecipient.form.realName') }}</label>
           <input v-model="nowy.rzeczywista" type="text" class="input" required />
         </div>
         <div class="md:col-span-2">
-          <label class="block mb-1">Adres odbiorcy (linia 1)</label>
+          <label class="block mb-1">{{ $t('recipients.addRecipient.form.addressLine1') }}</label>
           <input v-model="nowy.adres1" type="text" class="input" />
         </div>
         <div class="md:col-span-2">
-          <label class="block mb-1">Adres odbiorcy (linia 2)</label>
+          <label class="block mb-1">{{ $t('recipients.addRecipient.form.addressLine2') }}</label>
           <input v-model="nowy.adres2" type="text" class="input" />
         </div>
 
         <div class="md:col-span-2 text-right">
-          <button type="submit" class="btn-primary">Zapisz odbiorcę</button>
+          <button type="submit" class="btn-primary">{{ $t('recipients.addRecipient.form.saveButton') }}</button>
         </div>
       </form>
     </section>
 
     <section class="bg-white p-4 rounded shadow">
-      <h2 class="text-lg font-semibold mb-4">Zapisani odbiorcy</h2>
-      <div v-if="loading" class="text-gray-500">Ładowanie...</div>
-      <div v-else-if="recipients.length === 0" class="text-gray-500">Brak zapisanych odbiorców.</div>
+      <h2 class="text-lg font-semibold mb-4">{{ $t('recipients.savedRecipients.title') }}</h2>
+      <div v-if="loading" class="text-gray-500">{{ $t('recipients.savedRecipients.loading') }}</div>
+      <div v-else-if="recipients.length === 0" class="text-gray-500">{{ $t('recipients.savedRecipients.noRecipients') }}</div>
       <table v-else class="w-full table-auto border-collapse">
         <thead class="bg-gray-100">
         <tr>
-          <th class="p-2 text-left">Nazwa</th>
-          <th class="p-2 text-left">Nr konta</th>
-          <th class="p-2 text-left">Rzeczywista nazwa</th>
-          <th class="p-2 text-left">Dodano</th>
-          <th class="p-2 text-left">Akcje</th>
+          <th class="p-2 text-left">{{ $t('recipients.savedRecipients.table.name') }}</th>
+          <th class="p-2 text-left">{{ $t('recipients.savedRecipients.table.accountNumber') }}</th>
+          <th class="p-2 text-left">{{ $t('recipients.savedRecipients.table.realName') }}</th>
+          <th class="p-2 text-left">{{ $t('recipients.savedRecipients.table.added') }}</th>
+          <th class="p-2 text-left">{{ $t('recipients.savedRecipients.table.actions') }}</th>
         </tr>
         </thead>
         <tbody>
@@ -56,8 +56,8 @@
           <td class="p-2">{{ recipient.rzeczywista_nazwa }}</td>
           <td class="p-2">{{ formatDate(recipient.dodano) }}</td>
           <td class="p-2">
-            <button @click.stop="openEditModal(recipient)" class="btn-action btn-edit mr-2">Edytuj</button>
-            <button @click.stop="deleteRecipient(recipient.id)" class="btn-action btn-delete">Usuń</button>
+            <button @click.stop="openEditModal(recipient)" class="btn-action btn-edit mr-2">{{ $t('recipients.savedRecipients.table.edit') }}</button>
+            <button @click.stop="deleteRecipient(recipient.id)" class="btn-action btn-delete">{{ $t('recipients.savedRecipients.table.delete') }}</button>
           </td>
         </tr>
         </tbody>
@@ -69,47 +69,47 @@
         <h3 class="text-lg font-semibold mb-4">Szczegóły odbiorcy: {{ selectedRecipient.nazwa_zdefiniowana }}</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
           <div>
-            <p><strong class="font-medium">Nazwa zdefiniowana:</strong> {{ selectedRecipient.nazwa_zdefiniowana }}</p>
-            <p><strong class="font-medium">Numer konta:</strong> {{ selectedRecipient.nr_konta }}</p>
-            <p><strong class="font-medium">Rzeczywista nazwa:</strong> {{ selectedRecipient.rzeczywista_nazwa }}</p>
-            <p><strong class="font-medium">Adres linia 1:</strong> {{ selectedRecipient.adres_linia1 }}</p>
-            <p><strong class="font-medium">Adres linia 2:</strong> {{ selectedRecipient.adres_linia2 }}</p>
+            <p><strong class="font-medium">{{ $t('recipients.detailsModal.definedName') }}</strong> {{ selectedRecipient.nazwa_zdefiniowana }}</p>
+            <p><strong class="font-medium">{{ $t('recipients.detailsModal.accountNumber') }}</strong> {{ selectedRecipient.nr_konta }}</p>
+            <p><strong class="font-medium">{{ $t('recipients.detailsModal.realName') }}</strong> {{ selectedRecipient.rzeczywista_nazwa }}</p>
+            <p><strong class="font-medium">{{ $t('recipients.detailsModal.addressLine1') }}</strong> {{ selectedRecipient.adres_linia1 }}</p>
+            <p><strong class="font-medium">{{ $t('recipients.detailsModal.addressLine2') }}</strong> {{ selectedRecipient.adres_linia2 }}</p>
           </div>
         </div>
         <div class="text-right mt-4">
-          <button @click="closeDetailsModal" class="btn-secondary">Zamknij</button>
+          <button @click="closeDetailsModal" class="btn-secondary">{{ $t('recipients.detailsModal.closeButton') }}</button>
         </div>
       </div>
     </div>
 
     <div v-if="showEdit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-        <h3 class="text-lg font-semibold mb-4">Edytuj odbiorcę</h3>
+        <h3 class="text-lg font-semibold mb-4">{{ $t('recipients.editModal.title') }}</h3>
         <form @submit.prevent="updateOdbiorce" class="space-y-4">
           <div>
-            <label class="block mb-1">Nazwa zdefiniowana</label>
+            <label class="block mb-1">{{ $t('recipients.editModal.form.definedName') }}</label>
             <input v-model="editing.nazwa" type="text" class="input" required />
           </div>
           <div>
-            <label class="block mb-1">Numer konta odbiorcy</label>
+            <label class="block mb-1">{{ $t('recipients.editModal.form.accountNumber') }}</label>
             <input v-model="editing.nr" type="text" class="input font-mono" required />
           </div>
           <div>
-            <label class="block mb-1">Rzeczywista nazwa odbiorcy</label>
+            <label class="block mb-1">{{ $t('recipients.editModal.form.realName') }}</label>
             <input v-model="editing.rzeczywista" type="text" class="input" required />
           </div>
           <div>
-            <label class="block mb-1">Adres odbiorcy (linia 1)</label>
+            <label class="block mb-1">{{ $t('recipients.editModal.form.addressLine1') }}</label>
             <input v-model="editing.adres1" type="text" class="input" />
           </div>
           <div>
-            <label class="block mb-1">Adres odbiorcy (linia 2)</label>
+            <label class="block mb-1">{{ $t('recipients.editModal.form.addressLine2') }}</label>
             <input v-model="editing.adres2" type="text" class="input" />
           </div>
 
           <div class="flex justify-end space-x-2">
-            <button type="button" @click="closeEditModal" class="btn-secondary">Anuluj</button>
-            <button type="submit" class="btn-primary">Zapisz</button>
+            <button type="button" @click="closeEditModal" class="btn-secondary">{{ $t('recipients.editModal.form.cancelButton') }}</button>
+            <button type="submit" class="btn-primary">{{ $t('recipients.editModal.form.saveButton') }}</button>
           </div>
         </form>
       </div>

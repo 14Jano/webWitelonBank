@@ -1,15 +1,15 @@
 <!-- src/components/account/ForgotPassword.vue -->
 <template>
   <div class="max-w-md mx-auto mt-10 bg-white p-6 rounded shadow">
-    <h2 class="text-xl font-bold mb-4">Przypomnij hasło</h2>
+    <h2 class="text-xl font-bold mb-4">{{ $t('forgotPassword.title') }}</h2>
     <form @submit.prevent="sendResetEmail">
       <div class="mb-4">
-        <label class="block mb-1">Email</label>
+        <label class="block mb-1">{{ $t('forgotPassword.emailLabel') }}</label>
         <input v-model="email" type="email" class="input" required />
       </div>
-      <button class="btn-primary" type="submit" :disabled="loading">Wyślij link resetujący</button>
+      <button class="btn-primary" type="submit" :disabled="loading">{{ $t('forgotPassword.sendResetLinkButton') }}</button>
       <p v-if="error" class="text-red-600 mt-2">{{ error }}</p>
-      <p v-if="success" class="text-green-600 mt-2">Jeśli email istnieje, wysłaliśmy link do resetu hasła.</p>
+      <p v-if="success" class="text-green-600 mt-2">{{ $t('forgotPassword.successMessage') }}</p>
     </form>
   </div>
 </template>

@@ -1,16 +1,16 @@
 <template>
   <div class="p-4">
-    <h2 class="text-xl font-semibold mb-4">Twoje konta</h2>
+    <h2 class="text-xl font-semibold mb-4">{{ $t('accountList.title') }}</h2>
 
-    <div v-if="loading" class="text-gray-500">Ładowanie kont...</div>
-    <div v-else-if="konta.length === 0" class="text-gray-500">Brak dostępnych kont.</div>
+    <div v-if="loading" class="text-gray-500">{{ $t('accountList.loading') }}</div>
+    <div v-else-if="konta.length === 0" class="text-gray-500">{{ $t('accountList.noAccounts') }}</div>
 
     <table v-else class="min-w-full bg-white border border-gray-200 rounded shadow">
       <thead>
       <tr class="bg-gray-100 text-left">
-        <th class="px-4 py-2 border-b">Numer konta</th>
-        <th class="px-4 py-2 border-b">Saldo</th>
-        <th class="px-4 py-2 border-b">Waluta</th>
+        <th class="px-4 py-2 border-b">{{ $t('accountList.tableHeaders.accountNumber') }}</th>
+        <th class="px-4 py-2 border-b">{{ $t('accountList.tableHeaders.balance') }}</th>
+        <th class="px-4 py-2 border-b">{{ $t('accountList.tableHeaders.currency') }}</th>
       </tr>
       </thead>
       <tbody>

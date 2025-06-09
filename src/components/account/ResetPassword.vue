@@ -1,26 +1,26 @@
 <template>
   <div class="max-w-md mx-auto mt-10 bg-white p-6 rounded shadow">
-    <h2 class="text-xl font-bold mb-4">Resetowanie hasła</h2>
+    <h2 class="text-xl font-bold mb-4">{{ $t('resetPassword.title') }}</h2>
     <form @submit.prevent="resetPassword">
       <div class="mb-4">
-        <label class="block mb-1">Email</label>
+        <label class="block mb-1">{{ $t('resetPassword.emailLabel') }}</label>
         <input v-model="email" type="email" class="input" required />
       </div>
       <div class="mb-4">
-        <label class="block mb-1">Token z emaila</label>
+        <label class="block mb-1">{{ $t('resetPassword.tokenLabel') }}</label>
         <input v-model="token" type="text" class="input" required />
       </div>
       <div class="mb-4">
-        <label class="block mb-1">Nowe hasło</label>
+        <label class="block mb-1">{{ $t('resetPassword.newPasswordLabel') }}</label>
         <input v-model="password" type="password" class="input" required />
       </div>
       <div class="mb-4">
-        <label class="block mb-1">Powtórz nowe hasło</label>
+        <label class="block mb-1">{{ $t('resetPassword.confirmNewPasswordLabel') }}</label>
         <input v-model="passwordConfirmation" type="password" class="input" required />
       </div>
-      <button class="btn-primary" type="submit" :disabled="loading">Zmień hasło</button>
+      <button class="btn-primary" type="submit" :disabled="loading">{{ $t('resetPassword.changePasswordButton') }}</button>
       <p v-if="error" class="text-red-600 mt-2">{{ error }}</p>
-      <p v-if="success" class="text-green-600 mt-2">Hasło zostało zresetowane!</p>
+      <p v-if="success" class="text-green-600 mt-2">{{ $t('resetPassword.successMessage') }}</p>
     </form>
   </div>
 </template>

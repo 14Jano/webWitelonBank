@@ -2,30 +2,30 @@
   <main class="home-page">
     <section class="hero">
       <div class="container">
-        <h2>Twoje finanse w jednym miejscu</h2>
-        <p>Zarządzaj swoimi kontami, przelewami i oszczędnościami w prosty sposób.</p>
+        <h2>{{ $t('homePage.hero.title') }}</h2>
+        <p>{{ $t('homePage.hero.subtitle') }}</p>
         <div class="cta-buttons" v-if="!auth.isLoggedIn">
-          <router-link to="/login" class="btn">Zaloguj się</router-link>
-          <router-link to="/register" class="btn btn-secondary">Zarejestruj się</router-link>
+          <router-link to="/login" class="btn">{{ $t('login') }}</router-link>
+          <router-link to="/register" class="btn btn-secondary">{{ $t('register') }}</router-link>
         </div>
       </div>
     </section>
 
     <section class="features">
       <div class="container">
-        <h2>Dlaczego Witelon Bank?</h2>
+        <h2>{{ $t('homePage.features.title') }}</h2>
         <div class="feature-list">
           <div class="feature">
-            <h3>Szybkie przelewy</h3>
-            <p>Wykonuj przelewy w kilka sekund, gdziekolwiek jesteś.</p>
+            <h3>{{ $t('homePage.features.quickTransfers.title') }}</h3>
+            <p>{{ $t('homePage.features.quickTransfers.description') }}</p>
           </div>
           <div class="feature">
-            <h3>Bezpieczeństwo</h3>
-            <p>Twoje dane są chronione najnowszymi technologiami.</p>
+            <h3>{{ $t('homePage.features.security.title') }}</h3>
+            <p>{{ $t('homePage.features.security.description') }}</p>
           </div>
           <div class="feature">
-            <h3>Wsparcie 24/7</h3>
-            <p>Nasza obsługa klienta jest dostępna przez całą dobę.</p>
+            <h3>{{ $t('homePage.features.support.title') }}</h3>
+            <p>{{ $t('homePage.features.support.description') }}</p>
           </div>
         </div>
       </div>
@@ -33,14 +33,14 @@
 
     <section class="testimonials">
       <div class="container">
-        <h2>Opinie naszych klientów</h2>
+        <h2>{{ $t('homePage.testimonials.title') }}</h2>
         <div class="testimonial-list">
           <div class="testimonial">
-            <p>"Witelon Bank to najlepszy wybór dla moich finansów!"</p>
+            <p>{{ $t('homePage.testimonials.testimonial1.quote') }}</p>
             <span>- Jan Kowalski</span>
           </div>
           <div class="testimonial">
-            <p>"Szybkie przelewy i świetna obsługa klienta."</p>
+            <p>{{ $t('homePage.testimonials.testimonial2.quote') }}</p>
             <span>- Anna Nowak</span>
           </div>
         </div>
@@ -49,7 +49,7 @@
 
     <footer class="footer">
       <div class="container">
-        <p>&copy; 2025 Witelon Bank. Wszelkie prawa zastrzeżone.</p>
+        <p>&copy;{{ $t('homePage.footer.copyright') }}</p>
       </div>
     </footer>
   </main>

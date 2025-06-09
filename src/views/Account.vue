@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <header class="bg-white shadow p-5 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-gray-800">Moje Konto</h1>
+      <h1 class="text-2xl font-bold text-gray-800">{{ $t('myAccount.title') }}</h1>
     </header>
 
     <nav class="bg-white shadow p-3 flex gap-4 overflow-x-auto">

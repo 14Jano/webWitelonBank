@@ -13,7 +13,7 @@
                 to="/"
                 class="px-3 py-2 rounded-md transition hover:bg-blue-100 hover:text-blue-700"
                 exact-active-class="bg-blue-100 text-blue-700 font-semibold border border-blue-300 shadow-sm">
-              Strona główna
+              {{ $t('home') }}
             </router-link>
           </li>
           <li>
@@ -21,7 +21,7 @@
                 to="/currencies"
                 class="px-3 py-2 rounded-md transition hover:bg-blue-100 hover:text-blue-700"
                 exact-active-class="bg-blue-100 text-blue-700 font-semibold border border-blue-300 shadow-sm">
-              Kursy walut
+              {{ $t('currencies') }}
             </router-link>
           </li>
           <li v-if="user">
@@ -29,7 +29,7 @@
                 to="/account"
                 class="px-3 py-2 rounded-md transition hover:bg-blue-100 hover:text-blue-700"
                 exact-active-class="bg-blue-100 text-blue-700 font-semibold border border-blue-300 shadow-sm">
-              Moje konto
+              {{ $t('account') }}
             </router-link>
           </li>
           <li>
@@ -37,7 +37,7 @@
                 to="/about"
                 class="px-3 py-2 rounded-md transition hover:bg-blue-100 hover:text-blue-700"
                 exact-active-class="bg-blue-100 text-blue-700 font-semibold border border-blue-300 shadow-sm">
-              O nas
+              {{ $t('about') }}
             </router-link>
           </li>
           <li>
@@ -45,7 +45,7 @@
                 to="/help"
                 class="px-3 py-2 rounded-md transition hover:bg-blue-100 hover:text-blue-700"
                 exact-active-class="bg-blue-100 text-blue-700 font-semibold border border-blue-300 shadow-sm">
-              Pomoc
+              {{ $t('help') }}
             </router-link>
           </li>
           <li>
@@ -53,7 +53,7 @@
                 to="/promo"
                 class="px-3 py-2 rounded-md transition hover:bg-blue-100 hover:text-blue-700"
                 exact-active-class="bg-blue-100 text-blue-700 font-semibold border border-blue-300 shadow-sm">
-              Promocje
+              {{ $t('promotion') }}
             </router-link>
           </li>
         </ul>
@@ -61,12 +61,12 @@
         <ul class="flex items-center gap-4 text-sm text-gray-600">
           <template v-if="user">
             <span class="text-gray-700">
-              Witaj, <strong>{{ user.imie }} {{ user.nazwisko }}</strong>
+              {{ $t('welcome') }}, <strong>{{ user.imie }} {{ user.nazwisko }}</strong>
             </span>
             <button
                 @click="authStore.logout"
                 class="text-red-600 hover:text-red-800 transition">
-              Wyloguj
+              {{ $t('logout') }}
             </button>
           </template>
           <template v-else>
@@ -76,7 +76,7 @@
                   to="/login"
                   class="px-3 py-2 rounded-md transition hover:bg-blue-100 hover:text-blue-700"
                   exact-active-class="bg-blue-100 text-blue-700 font-semibold border border-blue-300 shadow-sm">
-                Logowanie
+                {{ $t('login') }}
               </router-link>
             </li>
             <li>
@@ -84,7 +84,7 @@
                   to="/register"
                   class="px-3 py-2 rounded-md transition hover:bg-blue-100 hover:text-blue-700"
                   exact-active-class="bg-blue-100 text-blue-700 font-semibold border border-blue-300 shadow-sm">
-                Rejestracja
+                {{ $t('register') }}
               </router-link>
             </li>
           </template>

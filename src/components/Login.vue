@@ -1,37 +1,37 @@
 <template>
   <div class="login-form">
-    <h2>Logowanie</h2>
+    <h2>{{ $t('loginPage.title') }}</h2>
     <form @submit.prevent="handleLogin">
       <div class="form-group">
-        <label for="email">Email:</label>
+        <label for="email">{{ $t('loginPage.form.emailLabel') }}</label>
         <input
             type="email"
             id="email"
             v-model="email"
             :class="{ 'input-error': errors.email }"
-            placeholder="Wprowadź email"
+            :placeholder="$t('loginPage.form.emailPlaceholder')"
             required
         />
         <p v-if="errors.email" class="error">{{ errors.email }}</p>
       </div>
 
       <div class="form-group">
-        <label for="password">Hasło:</label>
+        <label for="password">{{ $t('loginPage.form.passwordLabel') }}</label>
         <input
             type="password"
             id="password"
             v-model="haslo"
             :class="{ 'input-error': errors.haslo }"
-            placeholder="Wprowadź hasło"
+            :placeholder="$t('loginPage.form.passwordPlaceholder')"
             required
         />
         <p v-if="errors.haslo" class="error">{{ errors.haslo }}</p>
       </div>
-      <button type="submit" class="btn">Zaloguj</button>
+      <button type="submit" class="btn">{{ $t('loginPage.form.submitButton') }}</button>
 
-      <p class="mt-3 items-center">Nie masz konta? <router-link to="/register" id="link">Założysz je tutaj</router-link></p>
+      <p class="mt-3 items-center">{{ $t('loginPage.form.noAccount') }} <router-link to="/register" id="link">{{ $t('loginPage.form.registerLink') }}</router-link></p>
       <p class="mt-2">
-        <router-link to="/forgot-password" id="link">Nie pamiętasz hasła?</router-link>
+        <router-link to="/forgot-password" id="link">{{ $t('loginPage.form.forgotPassword') }}</router-link>
       </p>
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
     </form>
