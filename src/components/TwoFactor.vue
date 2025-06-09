@@ -1,9 +1,9 @@
 <template>
   <div class="twofa-form">
-    <h2>Weryfikacja kodu 2FA</h2>
+    <h2>{{ $t('twoFactorAuth.title') }}</h2>
     <form @submit.prevent="submit">
-      <input v-model="dwuetapowy_kod" placeholder="Kod z e-maila" required />
-      <button type="submit">Potwierdź</button>
+      <input v-model="dwuetapowy_kod" :placeholder="$t('twoFactorAuth.placeholder')" required />
+      <button type="submit">{{ $t('twoFactorAuth.confirmButton') }}</button>
       <p v-if="error" class="error">{{ error }}</p>
     </form>
   </div>

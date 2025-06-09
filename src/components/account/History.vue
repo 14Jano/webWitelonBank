@@ -1,22 +1,22 @@
 <template>
   <div class="p-6 bg-gray-100 min-h-screen">
     <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-2xl font-semibold mb-6 text-gray-800">Historia transakcji</h2>
+      <h2 class="text-2xl font-semibold mb-6 text-gray-800">{{ $t('transactionHistory.title') }}</h2>
 
       <div class="flex flex-wrap items-center gap-4 mb-6">
         <div class="relative flex-grow">
           <input
               v-model="searchTerm"
-              placeholder="Szukaj tytułu..."
+              :placeholder="$t('transactionHistory.searchPlaceholder')"
               class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         </div>
 
         <select v-model="filterType" class="py-2 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="all">Wszystkie</option>
-          <option value="incoming">Przychodzące</option>
-          <option value="outgoing">Wychodzące</option>
+          <option value="all">{{ $t('transactionHistory.filterOptions.all') }}</option>
+          <option value="incoming">{{ $t('transactionHistory.filterOptions.incoming') }}</option>
+          <option value="outgoing">{{ $t('transactionHistory.filterOptions.outgoing') }}</option>
         </select>
 
         <input type="date" v-model="dateFrom" class="py-2 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -24,12 +24,12 @@
 
         <button @click="exportToPDF" class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
           <svg class="mr-2" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          Eksportuj do PDF
+          {{ $t('transactionHistory.exportPdfButton') }}
         </button>
       </div>
 
-      <div v-if="loading" class="text-gray-600 text-center py-8">Ładowanie transakcji...</div>
-      <div v-else-if="sortedAndFilteredTransactions.length === 0" class="text-gray-600 text-center py-8">Brak transakcji do wyświetlenia.</div>
+      <div v-if="loading" class="text-gray-600 text-center py-8">{{ $t('transactionHistory.loading') }}</div>
+      <div v-else-if="sortedAndFilteredTransactions.length === 0" class="text-gray-600 text-center py-8">{{ $t('transactionHistory.noTransactions') }}</div>
 
       <div v-else class="overflow-x-auto rounded-lg shadow">
         <table class="min-w-full bg-white">
@@ -38,7 +38,7 @@
             <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 @click="sortBy('date')">
-              Data
+              {{ $t('transactionHistory.tableHeaders.date') }}
               <span v-if="sortColumn === 'date'">
                   <span v-if="sortDirection === 'asc'">&#9650;</span>
                   <span v-else>&#9660;</span>
@@ -47,7 +47,7 @@
             <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 @click="sortBy('title')">
-              Tytuł
+              {{ $t('transactionHistory.tableHeaders.title') }}
               <span v-if="sortColumn === 'title'">
                   <span v-if="sortDirection === 'asc'">&#9650;</span>
                   <span v-else>&#9660;</span>
@@ -56,7 +56,7 @@
             <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 @click="sortBy('amount')">
-              Kwota
+              {{ $t('transactionHistory.tableHeaders.amount') }}
               <span v-if="sortColumn === 'amount'">
                   <span v-if="sortDirection === 'asc'">&#9650;</span>
                   <span v-else>&#9660;</span>
@@ -65,7 +65,7 @@
             <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 @click="sortBy('raw.typ')">
-              Typ
+              {{ $t('transactionHistory.tableHeaders.type') }}
               <span v-if="sortColumn === 'raw.typ'">
                   <span v-if="sortDirection === 'asc'">&#9650;</span>
                   <span v-else>&#9660;</span>
@@ -97,22 +97,22 @@
 
       <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-          <h3 class="text-xl font-bold mb-5 text-gray-800">Szczegóły transakcji</h3>
+          <h3 class="text-xl font-bold mb-5 text-gray-800">{{ $t('transactionHistory.transactionDetails.title') }}</h3>
           <ul class="space-y-3 text-sm text-gray-700">
-            <li><strong>Data zlecenia:</strong> {{ formatDate(selectedTx.dateCreated) }}</li>
-            <li><strong>Data realizacji:</strong> {{ formatDate(selectedTx.date) }}</li>
-            <li><strong>Tytuł:</strong> <span class="font-medium">{{ selectedTx.title }}</span></li>
-            <li><strong>Kwota:</strong> <span class="font-semibold" :class="{ }">{{ selectedTx.amount.toFixed(2) }} {{ selectedTx.currency }}</span></li>
-            <li><strong>Typ transakcji:</strong> <span class="font-medium">{{ selectedTx.raw.typ }}</span></li>
-            <li><strong>Status:</strong> <span class="font-medium text-blue-600">{{ selectedTx.raw.status }}</span></li>
-            <li><strong>Nr konta nadawcy:</strong> <span class="font-mono">{{ selectedTx.raw.nr_konta_nadawcy }}</span></li>
-            <li><strong>Nr konta odbiorcy:</strong> <span class="font-mono">{{ selectedTx.raw.nr_konta_odbiorcy }}</span></li>
-            <li><strong>Nazwa odbiorcy:</strong> {{ selectedTx.raw.nazwa_odbiorcy }}</li>
-            <li><strong>Adres odbiorcy:</strong><br>
+            <li><strong>{{ $t('transactionHistory.transactionDetails.orderDate') }}</strong> {{ formatDate(selectedTx.dateCreated) }}</li>
+            <li><strong>{{ $t('transactionHistory.transactionDetails.executionDate') }}</strong> {{ formatDate(selectedTx.date) }}</li>
+            <li><strong>{{ $t('transactionHistory.tableHeaders.title') }}</strong> <span class="font-medium">{{ selectedTx.title }}</span></li>
+            <li><strong>{{ $t('transactionHistory.tableHeaders.amount') }}</strong> <span class="font-semibold" :class="{ }">{{ selectedTx.amount.toFixed(2) }} {{ selectedTx.currency }}</span></li>
+            <li><strong>{{ $t('transactionHistory.transactionDetails.transactionType') }}</strong> <span class="font-medium">{{ selectedTx.raw.typ }}</span></li>
+            <li><strong>{{ $t('transactionHistory.transactionDetails.status') }}</strong> <span class="font-medium text-blue-600">{{ selectedTx.raw.status }}</span></li>
+            <li><strong>{{ $t('transactionHistory.transactionDetails.senderAccount') }}</strong> <span class="font-mono">{{ selectedTx.raw.nr_konta_nadawcy }}</span></li>
+            <li><strong>{{ $t('transactionHistory.transactionDetails.recipientAccount') }}</strong> <span class="font-mono">{{ selectedTx.raw.nr_konta_odbiorcy }}</span></li>
+            <li><strong>{{ $t('transactionHistory.transactionDetails.recipientName') }}</strong> {{ selectedTx.raw.nazwa_odbiorcy }}</li>
+            <li><strong>{{ $t('transactionHistory.transactionDetails.recipientAddress') }}</strong><br>
               {{ selectedTx.raw.adres_odbiorcy_linia1 }}<br>
               {{ selectedTx.raw.adres_odbiorcy_linia2 }}
             </li>
-            <li v-if="selectedTx.raw.informacja_zwrotna"><strong>Informacja zwrotna:</strong> <span class="italic">{{ selectedTx.raw.informacja_zwrotna }}</span></li>
+            <li v-if="selectedTx.raw.informacja_zwrotna"><strong>{{ $t('transactionHistory.transactionDetails.feedback') }}</strong> <span class="italic">{{ selectedTx.raw.informacja_zwrotna }}</span></li>
           </ul>
           <button
               @click="closeModal"

@@ -1,19 +1,19 @@
 <template>
   <div class="max-w-2xl mx-auto p-6 space-y-8 bg-gray-50 rounded-lg shadow-lg">
-    <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-6">Ustawienia Konta</h2>
+    <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-6">{{ $t('accountSettings.title') }}</h2>
 
     <div class="flex justify-center">
       <button
           class="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
           @click="goToResetPassword"
       >
-        Resetowanie hasła
+        {{ $t('accountSettings.resetPasswordButton') }}
       </button>
     </div>
 
     <section class="bg-white p-8 rounded-xl shadow-lg border border-red-400">
       <p class="mb-6 text-gray-700 leading-relaxed text-center">
-        Jeśli chcesz zamknąć konto, kliknij przycisk poniżej. Możesz to zrobić tylko, jeśli saldo konta wynosi <span class="font-bold text-red-600">0 zł</span>.
+        {{ $t('accountSettings.closeAccount.info') }}<span class="font-bold text-red-600">0 PLN</span>.
       </p>
       <div class="flex justify-center">
         <button
@@ -21,7 +21,7 @@
             class="w-full sm:w-auto px-8 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
             :disabled="loading"
         >
-          {{ loading ? 'Przetwarzanie...' : 'Zgłoś zamknięcie konta' }}
+          {{ loading ? $t('accountSettings.closeAccount.processingButton') : $t('accountSettings.closeAccount.button') }}
         </button>
       </div>
     </section>
@@ -40,9 +40,6 @@ const authStore = useAuthStore()
 
 const konto = computed(() => authStore.user?.konta?.[0])
 const kontoId = computed(() => konto.value?.id)
-console.log('Zalogowany użytkownik:', authStore.user)
-console.log('Lista kont:', authStore.user?.konta)
-console.log('kontoId:', kontoId.value)
 
 
 const loading = ref(false)

@@ -1,7 +1,7 @@
 <template>
   <div class="cards-container">
-    <h2>Karty Płatnicze</h2>
-    <div v-if="loading" class="loading-state">Ładowanie kart...</div>
+    <h2>{{ $t('cardsPage.title') }}</h2>
+    <div v-if="loading" class="loading-state">{{ $t('cardsPage.loading') }}</div>
 
     <div v-else>
       <div v-if="cards.length" class="card-list">
@@ -9,20 +9,20 @@
           <div class="payment-card" @click="openCard(card)">
             <div class="card-header">
               <span class="bank-logo"></span>
-              <span class="bank-name">{{ bankName }}</span>
+              <span class="bank-name">{{ $t('cardsPage.bankName') }}</span>
             </div>
             <div class="card-number-display">
               {{ maskCardNumber(card.nr_karty) }}
             </div>
             <div class="card-details">
               <div class="expiry-date">
-                <label>Ważna do:</label>
+                <label>{{ $t('cardsPage.cardDetails.validUntil') }}</label>
                 <span>{{ formatDateShort(card.data_waznosci) }}</span>
               </div>
               <div class="card-status">
-                <p>Status:
+                <p>{{ $t('cardsPage.cardDetails.status') }}
                   <span :class="card.zablokowana ? 'status-red' : 'status-green'">
-                    {{ card.zablokowana ? 'Zablokowana' : 'Aktywna' }}
+                    {{ card.zablokowana ? $t('cardsPage.cardStatus.blocked') : $t('cardsPage.cardStatus.active') }}
                   </span>
                 </p>
               </div>
@@ -33,89 +33,88 @@
                 v-if="!card.zablokowana"
                 @click.stop="confirmBlock(card.id)"
                 class="action-button block-button">
-              Zablokuj kartę
+              {{ $t('cardsPage.actions.blockCard') }}
             </button>
             <button
                 v-if="card.zablokowana"
                 @click.stop="confirmUnblock(card.id)"
                 class="action-button unblock-button">
-              Odblokuj kartę
+              {{ $t('cardsPage.actions.unblockCard') }}
             </button>
             <button
                 @click.stop="openLimitModal(card)"
                 class="action-button limit-button">
-              Zmień limit
+              {{ $t('cardsPage.actions.changeLimit') }}
             </button>
             <button
                 @click.stop="openPaymentSettingsModal(card)"
                 class="action-button settings-button">
-              Ustawienia płatności
+              {{ $t('cardsPage.actions.paymentSettings') }}
             </button>
           </div>
         </div>
       </div>
       <div v-else class="no-cards-state">
-        Brak kart do wyświetlenia.
+        {{ $t('cardsPage.noCards') }}
       </div>
     </div>
 
     <div v-if="selectedCard" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
-        <h3>Szczegóły Karty</h3>
-        <p><strong>Numer karty:</strong> {{ selectedCard.nr_karty ? maskCardNumber(selectedCard.nr_karty) : 'Brak danych' }}</p>
-        <p><strong>Data ważności:</strong> {{ formatDate(selectedCard.data_waznosci) }}</p>
-        <p><strong>Limit dzienny:</strong> {{ selectedCard.limit_dzienny }} PLN</p>
+        <h3>{{ $t('cardsPage.modals.cardDetailsTitle') }}</h3>
+        <p><strong>{{ $t('cardsPage.cardDetails.cardNumber') }}</strong> {{ selectedCard.nr_karty ? maskCardNumber(selectedCard.nr_karty) : 'Brak danych' }}</p>
+        <p><strong>{{ $t('cardsPage.cardDetails.expirationDate') }}</strong> {{ formatDate(selectedCard.data_waznosci) }}</p>
+        <p><strong>{{ $t('cardsPage.cardDetails.dailyLimit') }}</strong> {{ selectedCard.limit_dzienny }} PLN</p>
         <p>
-          <strong>Status:</strong>
+          <strong>{{ $t('cardsPage.cardDetails.status') }}</strong>
           <span :class="selectedCard.zablokowana ? 'status-red' : 'status-green'">
-            {{ selectedCard.zablokowana ? 'Zablokowana' : 'Aktywna' }}
+            {{ selectedCard.zablokowana ? $t('cardsPage.cardStatus.blocked') : $t('cardsPage.cardStatus.active') }}
           </span>
         </p>
-        <p><strong>Płatności internetowe:</strong>
+        <p><strong>{{ $t('cardsPage.cardDetails.onlinePayments') }}</strong>
           <span :class="selectedCard.platnosci_internetowe_aktywne ? 'status-green' : 'status-red'">
-            {{ selectedCard.platnosci_internetowe_aktywne ? 'Aktywne' : 'Zablokowane' }}
-          </span>
+            {{ selectedCard.platnosci_internetowe_aktywne ? $t('cardsPage.cardDetails.active') : $t('cardsPage.cardDetails.blocked') }}          </span>
         </p>
-        <p><strong>Płatności zbliżeniowe:</strong>
+        <p><strong>{{ $t('cardsPage.cardDetails.contactlessPayments') }}</strong>
           <span :class="selectedCard.platnosci_zblizeniowe_aktywne ? 'status-green' : 'status-red'">
-            {{ selectedCard.platnosci_zblizeniowe_aktywne ? 'Aktywne' : 'Zablokowane' }}
+            {{ selectedCard.platnosci_zblizeniowe_aktywne ? $t('cardsPage.cardDetails.active') : $t('cardsPage.cardDetails.blocked') }}
         </span>
         </p>
 
-        <button @click="closeModal" class="modal-close-button">Zamknij</button>
+        <button @click="closeModal" class="modal-close-button">{{ $t('cardsPage.modals.closeButton') }}</button>
       </div>
     </div>
 
     <div v-if="showLimitModal" class="modal-overlay" @click.self="closeLimitModal">
       <div class="modal-content">
-        <h3>Zmień dzienny limit karty</h3>
-        <p>Karta: {{ maskCardNumber(editingCard.nr_karty) }}</p>
+        <h3>{{ $t('cardsPage.modals.changeLimit.title') }}</h3>
+        <p>{{ $t('cardsPage.modals.changeLimit.card') }} {{ maskCardNumber(editingCard.nr_karty) }}</p>
         <div class="form-group">
-          <label for="newLimit">Nowy limit dzienny (PLN):</label>
+          <label for="newLimit">{{ $t('cardsPage.modals.changeLimit.newLimitLabel') }}</label>
           <input type="number" id="newLimit" v-model.number="newLimitValue" min="0.01" step="0.01" />
         </div>
         <div class="modal-actions">
-          <button @click="submitLimitChange" class="action-button settings-button">Zapisz</button>
-          <button @click="closeLimitModal" class="modal-close-button">Anuluj</button>
+          <button @click="submitLimitChange" class="action-button settings-button">{{ $t('cardsPage.modals.changeLimit.saveButton') }}</button>
+          <button @click="closeLimitModal" class="modal-close-button">{{ $t('cardsPage.modals.changeLimit.cancelButton') }}</button>
         </div>
       </div>
     </div>
 
     <div v-if="showPaymentSettingsModal" class="modal-overlay" @click.self="closePaymentSettingsModal">
       <div class="modal-content">
-        <h3>Ustawienia płatności karty</h3>
-        <p>Karta: {{ maskCardNumber(editingCard.nr_karty) }}</p>
+        <h3>{{ $t('cardsPage.modals.paymentSettings.title') }}</h3>
+        <p>{{ $t('cardsPage.modals.paymentSettings.card') }} {{ maskCardNumber(editingCard.nr_karty) }}</p>
         <div class="form-group">
           <input type="checkbox" id="onlinePayments" v-model="onlinePaymentsActive" />
-          <label for="onlinePayments">Płatności internetowe</label>
+          <label for="onlinePayments">{{ $t('cardsPage.modals.paymentSettings.onlinePaymentsCheckbox') }}</label>
         </div>
         <div class="form-group">
           <input type="checkbox" id="contactlessPayments" v-model="contactlessPaymentsActive" />
-          <label for="contactlessPayments">Płatności zbliżeniowe</label>
+          <label for="contactlessPayments">{{ $t('cardsPage.modals.paymentSettings.contactlessPaymentsCheckbox') }}</label>
         </div>
         <div class="modal-actions">
-          <button @click="submitPaymentSettingsChange" class="action-button settings-button">Zapisz</button>
-          <button @click="closePaymentSettingsModal" class="modal-close-button">Anuluj</button>
+          <button @click="submitPaymentSettingsChange" class="action-button settings-button">{{ $t('cardsPage.modals.paymentSettings.saveButton') }}</button>
+          <button @click="closePaymentSettingsModal" class="modal-close-button">{{ $t('cardsPage.modals.paymentSettings.cancelButton') }}</button>
         </div>
       </div>
     </div>

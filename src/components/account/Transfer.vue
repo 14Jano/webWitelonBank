@@ -1,16 +1,16 @@
 <template>
   <div class="p-8 bg-gray-50 min-h-screen">
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-      <h2 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">Wykonaj przelew</h2>
+      <h2 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">{{ $t('transfer.title') }}</h2>
 
       <div v-if="!idKontaNadawcy" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
-        <strong class="font-bold">Błąd!</strong>
-        <span class="block sm:inline ml-2">Nie udało się załadować konta nadawcy.</span>
+        <strong class="font-bold">{{ $t('transfer.senderAccountError.title') }}</strong>
+        <span class="block sm:inline ml-2">{{ $t('transfer.senderAccountError.message') }}</span>
       </div>
 
       <form v-else @submit.prevent="wyslijPrzelew" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
         <div>
-          <label for="nr_konta_odbiorcy" class="block text-sm font-medium text-gray-700 mb-1">Numer konta odbiorcy</label>
+          <label for="nr_konta_odbiorcy" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('transfer.form.recipientAccountNumber.label') }}</label>
           <input
               id="nr_konta_odbiorcy"
               v-model="form.nr_konta_odbiorcy"
@@ -22,55 +22,55 @@
         </div>
 
         <div>
-          <label for="nazwa_odbiorcy" class="block text-sm font-medium text-gray-700 mb-1">Nazwa odbiorcy</label>
+          <label for="nazwa_odbiorcy" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('transfer.form.recipientName.label') }}</label>
           <input
               id="nazwa_odbiorcy"
               v-model="form.nazwa_odbiorcy"
               type="text"
               required
               class="input-field"
-              placeholder="Imię i Nazwisko / Nazwa firmy"
+              :placeholder="$t('transfer.form.recipientName.placeholder')"
           />
         </div>
 
         <div class="md:col-span-2">
-          <label for="adres_odbiorcy_linia1" class="block text-sm font-medium text-gray-700 mb-1">Adres odbiorcy - linia 1</label>
+          <label for="adres_odbiorcy_linia1" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('transfer.form.recipientAddressLine1.label') }}</label>
           <input
               id="adres_odbiorcy_linia1"
               v-model="form.adres_odbiorcy_linia1"
               type="text"
               required
               class="input-field"
-              placeholder="Ulica i numer domu/mieszkania"
+              :placeholder="$t('transfer.form.recipientAddressLine1.placeholder')"
           />
         </div>
 
         <div class="md:col-span-2">
-          <label for="adres_odbiorcy_linia2" class="block text-sm font-medium text-gray-700 mb-1">Adres odbiorcy - linia 2</label>
+          <label for="adres_odbiorcy_linia2" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('transfer.form.recipientAddressLine2.label') }}</label>
           <input
               id="adres_odbiorcy_linia2"
               v-model="form.adres_odbiorcy_linia2"
               type="text"
               required
               class="input-field"
-              placeholder="Kod pocztowy i miasto"
+              :placeholder="$t('transfer.form.recipientAddressLine2.placeholder')"
           />
         </div>
 
         <div class="md:col-span-2">
-          <label for="tytul" class="block text-sm font-medium text-gray-700 mb-1">Tytuł przelewu</label>
+          <label for="tytul" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('transfer.form.transferTitle.label') }}</label>
           <input
               id="tytul"
               v-model="form.tytul"
               type="text"
               required
               class="input-field"
-              placeholder="np. Rachunek za prąd, Zwrot pożyczki"
+              :placeholder="$t('transfer.form.transferTitle.placeholder')"
           />
         </div>
 
         <div>
-          <label for="kwota" class="block text-sm font-medium text-gray-700 mb-1">Kwota</label>
+          <label for="kwota" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('transfer.form.amount.label') }}</label>
           <input
               id="kwota"
               v-model.number="form.kwota"
@@ -79,12 +79,12 @@
               min="0.01"
               required
               class="input-field"
-              placeholder="np. 100.00"
+              :placeholder="$t('transfer.form.amount.placeholder')"
           />
         </div>
 
         <div>
-          <label for="waluta_przelewu" class="block text-sm font-medium text-gray-700 mb-1">Waluta</label>
+          <label for="waluta_przelewu" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('transfer.form.currency.label') }}</label>
           <select id="waluta_przelewu" v-model="form.waluta_przelewu" class="input-field">
             <option value="PLN">PLN</option>
             <option value="EUR">EUR</option>
@@ -92,16 +92,16 @@
         </div>
 
         <div class="md:col-span-2 text-center mt-4">
-          <button type="submit" class="submit-button">Wyślij przelew</button>
+          <button type="submit" class="submit-button">{{ $t('transfer.form.submitButton') }}</button>
         </div>
       </form>
 
       <div v-if="komunikat" class="mt-8 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative text-center" role="alert">
-        <strong class="font-bold">Sukces!</strong>
+        <strong class="font-bold">{{ $t('transfer.messages.success.title') }}</strong>
         <span class="block sm:inline ml-2">{{ komunikat }}</span>
       </div>
       <div v-if="blad" class="mt-8 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center" role="alert">
-        <strong class="font-bold">Błąd!</strong>
+        <strong class="font-bold">{{ $t('transfer.messages.error.title') }}</strong>
         <span class="block sm:inline ml-2">{{ blad }}</span>
       </div>
     </div>
@@ -144,10 +144,10 @@ onMounted(async () => {
       console.log('ID konta nadawcy:', idKontaNadawcy.value)
       console.log('Numer konta nadawcy:', nrKontaNadawcy.value)
     } else {
-      blad.value = 'Użytkownik nie posiada żadnego konta.'
+      blad.value = t('transfer.messages.error.noSenderAccount')
     }
   } catch (err) {
-    blad.value = 'Błąd podczas pobierania konta nadawcy.'
+    blad.value = t('transfer.messages.error.fetchSenderAccountError')
     console.error(err)
   }
 })
@@ -157,7 +157,7 @@ const wyslijPrzelew = async () => {
   komunikat.value = ''
 
   if (!idKontaNadawcy.value) {
-    blad.value = 'Brak ID konta nadawcy.'
+    blad.value = t('transfer.messages.error.missingSenderAccountId')
     return
   }
 
@@ -178,7 +178,6 @@ const wyslijPrzelew = async () => {
       }
     })
     komunikat.value = 'Przelew został wysłany pomyślnie.'
-    console.log('Odpowiedź serwera:', res.data)
     form.value = {
       nr_konta_odbiorcy: '',
       nazwa_odbiorcy: '',

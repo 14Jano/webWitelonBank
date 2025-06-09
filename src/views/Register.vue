@@ -1,35 +1,35 @@
 <template>
   <router-link to="/navbar"></router-link>
   <div class="register-form">
-    <h1>Rejestracja w Witelon Bank</h1>
+    <h1>{{ $t('registerPage.title') }}</h1>
     <form @submit.prevent="register">
       <div class="form-group">
-        <label for="firstName">Imię</label>
-        <input v-model="form.firstName" type="text" id="firstName" placeholder="Wpisz swoje imię" required />
+        <label for="firstName">{{ $t('registerPage.form.firstNameLabel') }}</label>
+        <input v-model="form.firstName" type="text" id="firstName" :placeholder="$t('registerPage.form.firstNamePlaceholder')" required />
       </div>
       <div class="form-group">
-        <label for="lastName">Nazwisko</label>
-        <input v-model="form.lastName" type="text" id="lastName" placeholder="Wpisz swoje nazwisko" required />
+        <label for="lastName">{{ $t('registerPage.form.lastNameLabel') }}</label>
+        <input v-model="form.lastName" type="text" id="lastName" :placeholder="$t('registerPage.form.lastNamePlaceholder')" required />
       </div>
       <div class="form-group">
-        <label for="email">Email</label>
-        <input v-model="form.email" type="email" id="email" placeholder="Wpisz swój email" required />
+        <label for="email">{{ $t('registerPage.form.emailLabel') }}</label>
+        <input v-model="form.email" type="email" id="email" :placeholder="$t('registerPage.form.emailPlaceholder')" required />
       </div>
       <div class="form-group">
-        <label for="email">Telefon</label>
-        <input v-model="form.tel" type="tel" id="tel" placeholder="Wpisz swój nr telefonu" />
+        <label for="email">{{ $t('registerPage.form.phoneLabel') }}</label>
+        <input v-model="form.tel" type="tel" id="tel" :placeholder="$t('registerPage.form.phonePlaceholder')" />
       </div>
       <div class="form-group">
-        <label for="password">Hasło</label>
-        <input v-model="form.password" type="password" id="password" placeholder="Wpisz hasło" required />
+        <label for="password">{{ $t('registerPage.form.passwordLabel') }}</label>
+        <input v-model="form.password" type="password" id="password" :placeholder="$t('registerPage.form.passwordPlaceholder')" required />
       </div>
       <div class="form-group">
-        <label for="confirmPassword">Potwierdź hasło</label>
-        <input v-model="form.confirmPassword" type="password" id="confirmPassword" placeholder="Potwierdź hasło" required />
+        <label for="confirmPassword">{{ $t('registerPage.form.confirmPasswordLabel') }}</label>
+        <input v-model="form.confirmPassword" type="password" id="confirmPassword" :placeholder="$t('registerPage.form.confirmPasswordPlaceholder')" required />
       </div>
-      <button type="submit" class="submit-button">Zarejestruj się</button>
+      <button type="submit" class="submit-button">{{ $t('registerPage.form.submitButton') }}</button>
 
-      <p class="mt-3 items-center">Masz już konto? <router-link to="/login" id="link">Zaloguj się tutaj</router-link></p>
+      <p class="mt-3 items-center">{{ $t('registerPage.form.alreadyHaveAccount') }} <router-link to="/login" id="link">{{ $t('registerPage.form.loginLink') }}</router-link></p>
     </form>
     <p v-if="error" class="error">{{ error }}</p>
   </div>

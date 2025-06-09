@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 md:p-10">
-    <h2 class="text-4xl font-extrabold text-gray-900 mb-12 text-center drop-shadow-sm">Twoje Zlecenia Stałe</h2>
+    <h2 class="text-4xl font-extrabold text-gray-900 mb-12 text-center drop-shadow-sm">{{ $t('recurringPayments.title') }}</h2>
 
     <div v-if="zlecenia.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
       <div
@@ -10,20 +10,20 @@
       >
         <div>
           <h3 class="text-xl font-bold text-blue-700 mb-3 border-b pb-2 border-blue-100">
-            Odbiorca: {{ zlecenie.nazwa_odbiorcy }}
+            {{ $t('recurringPayments.card.recipient') }} {{ zlecenie.nazwa_odbiorcy }}
           </h3>
           <p class="text-gray-700 text-base mb-1">
-            <span class="font-semibold text-gray-500">Kwota:</span>
+            <span class="font-semibold text-gray-500">{{ $t('recurringPayments.card.amount') }}</span>
             <span class="font-extrabold text-2xl text-green-600 ml-2">{{ zlecenie.kwota }}</span> PLN
           </p>
           <p class="text-gray-700 text-sm mb-1">
-            <span class="font-medium text-gray-500">Częstotliwość:</span> {{ zlecenie.czestotliwosc }}
+            <span class="font-medium text-gray-500">{{ $t('recurringPayments.card.frequency') }}</span> {{ zlecenie.czestotliwosc }}
           </p>
           <p class="text-gray-700 text-sm mb-1">
-            <span class="font-medium text-gray-500">Start:</span> {{ zlecenie.data_startu }}
+            <span class="font-medium text-gray-500">{{ $t('recurringPayments.card.start') }}</span> {{ zlecenie.data_startu }}
           </p>
           <p class="text-gray-700 text-sm mb-3">
-            <span class="font-medium text-gray-500">Koniec:</span> {{ zlecenie.data_zakonczenia || 'Brak' }}
+            <span class="font-medium text-gray-500">{{ $t('recurringPayments.card.end') }}</span> {{ zlecenie.data_zakonczenia || 'Brak' }}
           </p>
           <div class="mb-4">
             <span
@@ -32,7 +32,7 @@
                     zlecenie.aktywne ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                 ]"
             >
-              {{ zlecenie.aktywne ? 'Aktywne' : 'Nieaktywne' }}
+              {{ zlecenie.aktywne ? $t('recurringPayments.card.active') : $t('recurringPayments.card.inactive') }}
             </span>
           </div>
         </div>
@@ -42,26 +42,26 @@
               @click="pokazSzczegolyZlecenia(zlecenie.id)"
               class="flex-1 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 shadow-sm"
           >
-            Szczegóły
+            {{ $t('recurringPayments.card.detailsButton') }}
           </button>
           <button
               @click="edytujZlecenie(zlecenie)"
               class="flex-1 px-4 py-2 text-sm font-medium text-yellow-700 bg-yellow-50 rounded-lg hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition duration-200 shadow-sm"
           >
-            Edytuj
+            {{ $t('recurringPayments.card.editButton') }}
           </button>
           <button
               @click="usunZlecenie(zlecenie.id)"
               class="flex-1 px-4 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200 shadow-sm"
           >
-            Usuń
+            {{ $t('recurringPayments.card.deleteButton') }}
           </button>
         </div>
       </div>
     </div>
     <div v-else class="text-gray-600 text-xl text-center p-12 bg-white rounded-lg shadow-lg max-w-lg mx-auto">
-      <p class="mb-4">Brak aktywnych zleceń stałych.</p>
-      <p class="text-base text-gray-500">Dodaj swoje pierwsze zlecenie, aby rozpocząć!</p>
+      <p class="mb-4">{{ $t('recurringPayments.noOrders.message1') }}</p>
+      <p class="text-base text-gray-500">{{ $t('recurringPayments.noOrders.message2') }}</p>
     </div>
 
     <Transition name="fade">
@@ -80,20 +80,20 @@
           </button>
           <h3 class="text-3xl font-bold text-gray-900 mb-6 border-b pb-4 border-gray-200">Szczegóły zlecenia</h3>
           <div class="space-y-4 text-gray-700 text-lg">
-            <p><strong>Odbiorca:</strong> <span class="font-semibold">{{ szczegolyZlecenia.nazwa_odbiorcy }}</span></p>
-            <p><strong>Numer konta:</strong> <span class="font-mono bg-gray-100 px-2 py-1 rounded text-base inline-block">{{ szczegolyZlecenia.nr_konta_docelowego }}</span></p>
-            <p><strong>Tytuł przelewu:</strong> {{ szczegolyZlecenia.tytul_przelewu }}</p>
-            <p><strong>Kwota:</strong> <span class="font-bold text-green-600">{{ szczegolyZlecenia.kwota }} PLN</span></p>
-            <p><strong>Częstotliwość:</strong> {{ szczegolyZlecenia.czestotliwosc }}</p>
-            <p><strong>Data startu:</strong> {{ szczegolyZlecenia.data_startu }}</p>
-            <p><strong>Data zakończenia:</strong> {{ szczegolyZlecenia.data_zakonczenia || 'Brak' }}</p>
+            <p><strong>{{ $t('recurringPayments.detailsModal.recipient') }}</strong> <span class="font-semibold">{{ szczegolyZlecenia.nazwa_odbiorcy }}</span></p>
+            <p><strong>{{ $t('recurringPayments.detailsModal.accountNumber') }}</strong> <span class="font-mono bg-gray-100 px-2 py-1 rounded text-base inline-block">{{ szczegolyZlecenia.nr_konta_docelowego }}</span></p>
+            <p><strong>{{ $t('recurringPayments.detailsModal.transferTitle') }}</strong> {{ szczegolyZlecenia.tytul_przelewu }}</p>
+            <p><strong>{{ $t('recurringPayments.detailsModal.amount') }}</strong> <span class="font-bold text-green-600">{{ szczegolyZlecenia.kwota }} PLN</span></p>
+            <p><strong>{{ $t('recurringPayments.detailsModal.frequency') }}</strong> {{ szczegolyZlecenia.czestotliwosc }}</p>
+            <p><strong>{{ $t('recurringPayments.detailsModal.startDate') }}</strong> {{ szczegolyZlecenia.data_startu }}</p>
+            <p><strong>{{ $t('recurringPayments.detailsModal.endDate') }}</strong> {{ szczegolyZlecenia.data_zakonczenia || $t('recurringPayments.detailsModal.noEndDate') }}</p>
             <p>
-              <strong>Status:</strong>
+              <strong>{{ $t('recurringPayments.detailsModal.status') }}</strong>
               <span :class="[
                   'px-3 py-1 rounded-full text-sm font-semibold uppercase ml-2',
                   szczegolyZlecenia.aktywne ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
               ]">
-                {{ szczegolyZlecenia.aktywne ? 'Aktywne' : 'Nieaktywne' }}
+                {{ szczegolyZlecenia.aktywne ? $t('recurringPayments.detailsModal.active') : $t('recurringPayments.detailsModal.inactive') }}
               </span>
             </p>
           </div>
@@ -106,67 +106,67 @@
           @click="toggleFormAndScroll()"
           class="px-10 py-4 bg-indigo-600 text-white font-bold rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 transition-all duration-300 ease-in-out transform hover:scale-105"
       >
-        {{ showForm ? 'Anuluj dodawanie / edycję' : 'Dodaj nowe zlecenie stałe' }}
+        {{ showForm ? $t('recurringPayments.toggleFormButton.cancel') : $t('recurringPayments.toggleFormButton.add') }}
       </button>
     </div>
 
     <Transition name="slide-fade">
       <div v-if="showForm" ref="formSection" class="mt-10 p-8 bg-white rounded-xl shadow-2xl max-w-2xl mx-auto border border-gray-200">
-        <h3 class="text-3xl font-bold text-gray-900 mb-8 text-center">{{ edytowanyId ? 'Edytuj zlecenie stałe' : 'Nowe zlecenie stałe' }}</h3>
+        <h3 class="text-3xl font-bold text-gray-900 mb-8 text-center">{{ edytowanyId ? $t('recurringPayments.form.editTitle') : $t('recurringPayments.form.newTitle') }}</h3>
         <form @submit.prevent="submitForm" class="space-y-6">
           <div>
-            <label for="id_konta_zrodlowego" class="block text-gray-700 text-base font-semibold mb-2">Konto źródłowe</label>
+            <label for="id_konta_zrodlowego" class="block text-gray-700 text-base font-semibold mb-2">{{ $t('recurringPayments.form.sourceAccount.label') }}</label>
             <select id="id_konta_zrodlowego" v-model="form.id_konta_zrodlowego" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800" required>
-              <option disabled value="">Wybierz konto</option>
+              <option disabled value="">{{ $t('recurringPayments.form.sourceAccount.placeholder') }}</option>
               <option
                   v-for="konto in kontaUzytkownika"
                   :key="konto.id"
                   :value="konto.id"
               >
-                {{ konto.numer_konta }} (Saldo: {{ konto.saldo }} PLN)
+                {{ konto.numer_konta }} ({{ $t('recurringPayments.form.sourceAccount.balance') }} {{ konto.saldo }} PLN)
               </option>
             </select>
           </div>
 
           <div>
-            <label for="nr_konta_docelowego" class="block text-gray-700 text-base font-semibold mb-2">Numer konta docelowego</label>
+            <label for="nr_konta_docelowego" class="block text-gray-700 text-base font-semibold mb-2">{{ $t('recurringPayments.form.targetAccountNumber.label') }}</label>
             <input type="text" id="nr_konta_docelowego" v-model="form.nr_konta_docelowego" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800" required placeholder="np. PL00000000000000000000000000" />
           </div>
           <div>
-            <label for="nazwa_odbiorcy" class="block text-gray-700 text-base font-semibold mb-2">Nazwa odbiorcy</label>
-            <input type="text" id="nazwa_odbiorcy" v-model="form.nazwa_odbiorcy" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800" required placeholder="Imię Nazwisko lub Nazwa Firmy" />
+            <label for="nazwa_odbiorcy" class="block text-gray-700 text-base font-semibold mb-2">{{ $t('recurringPayments.form.recipientName.label') }}</label>
+            <input type="text" id="nazwa_odbiorcy" v-model="form.nazwa_odbiorcy" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800" required :placeholder="$t('recurringPayments.form.recipientName.placeholder')" />
           </div>
           <div>
-            <label for="tytul_przelewu" class="block text-gray-700 text-base font-semibold mb-2">Tytuł przelewu</label>
-            <input type="text" id="tytul_przelewu" v-model="form.tytul_przelewu" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800" required placeholder="np. Opłata za czynsz, Rachunek za prąd" />
+            <label for="tytul_przelewu" class="block text-gray-700 text-base font-semibold mb-2">{{ $t('recurringPayments.form.transferTitle.label') }}</label>
+            <input type="text" id="tytul_przelewu" v-model="form.tytul_przelewu" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800" required :placeholder="$t('recurringPayments.form.transferTitle.placeholder')" />
           </div>
           <div>
-            <label for="kwota" class="block text-gray-700 text-base font-semibold mb-2">Kwota (PLN)</label>
-            <input type="number" id="kwota" v-model.number="form.kwota" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800" min="0.01" step="0.01" required placeholder="np. 150.00" />
+            <label for="kwota" class="block text-gray-700 text-base font-semibold mb-2">{{ $t('recurringPayments.form.amount.label') }}</label>
+            <input type="number" id="kwota" v-model.number="form.kwota" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800" min="0.01" step="0.01" required :placeholder="$t('recurringPayments.form.amount.placeholder')" />
           </div>
           <div>
-            <label for="czestotliwosc" class="block text-gray-700 text-base font-semibold mb-2">Częstotliwość</label>
+            <label for="czestotliwosc" class="block text-gray-700 text-base font-semibold mb-2">{{ $t('recurringPayments.form.frequency.label') }}</label>
             <select id="czestotliwosc" v-model="form.czestotliwosc" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800" required>
-              <option value="miesiecznie">Miesięcznie</option>
-              <option value="tygodniowo">Tygodniowo</option>
-              <option value="kwartalnie">Kwartalnie</option>
-              <option value="rocznie">Rocznie</option>
+              <option value="miesiecznie">{{ $t('recurringPayments.form.frequency.monthly') }}</option>
+              <option value="tygodniowo">{{ $t('recurringPayments.form.frequency.weekly') }}</option>
+              <option value="kwartalnie">{{ $t('recurringPayments.form.frequency.quarterly') }}</option>
+              <option value="rocznie">{{ $t('recurringPayments.form.frequency.annually') }}</option>
             </select>
           </div>
           <div>
-            <label for="data_startu" class="block text-gray-700 text-base font-semibold mb-2">Data rozpoczęcia</label>
+            <label for="data_startu" class="block text-gray-700 text-base font-semibold mb-2">{{ $t('recurringPayments.form.startDate.label') }}</label>
             <input type="date" id="data_startu" v-model="form.data_startu" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800" required />
           </div>
           <div>
-            <label for="data_zakonczenia" class="block text-gray-700 text-base font-semibold mb-2">Data zakończenia (opcjonalnie)</label>
+            <label for="data_zakonczenia" class="block text-gray-700 text-base font-semibold mb-2">{{ $t('recurringPayments.form.endDate.label') }}</label>
             <input type="date" id="data_zakonczenia" v-model="form.data_zakonczenia" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800" />
           </div>
           <div class="flex items-center">
             <input type="checkbox" id="aktywne" v-model="form.aktywne" class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-md cursor-pointer" />
-            <label for="aktywne" class="ml-3 block text-gray-700 text-base font-semibold cursor-pointer">Aktywne zlecenie</label>
+            <label for="aktywne" class="ml-3 block text-gray-700 text-base font-semibold cursor-pointer">{{ $t('recurringPayments.form.activeOrder.label') }}</label>
           </div>
           <button type="submit" class="w-full px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-[1.01]">
-            {{ edytowanyId ? 'Zapisz zmiany w zleceniu' : 'Dodaj nowe zlecenie' }}
+            {{ edytowanyId ? $t('recurringPayments.form.saveButton') : $t('recurringPayments.form.addButton') }}
           </button>
         </form>
       </div>

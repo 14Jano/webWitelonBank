@@ -1,11 +1,11 @@
 <template>
   <div class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Pomoc i kontakt</h1>
-    <p class="mb-4">Masz pytania? Skontaktuj się z nami:</p>
+    <h1 class="text-2xl font-bold mb-4">{{ $t('help') }}</h1>
+    <p class="mb-4">{{ $t('helpp') }}</p>
     <ul class="space-y-2">
-      <li>Email: witelonbank@gmail.com</li>
-      <li>Telefon: +48 123 456 789</li>
-      <li>Godziny pracy: pon–pt 8:00–16:00</li>
+      <li>{{ $t('li1') }}</li>
+      <li>{{ $t('li2') }}</li>
+      <li>{{ $t('li3') }}</li>
     </ul>
   </div>
 </template>

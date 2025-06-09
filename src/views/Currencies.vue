@@ -1,19 +1,19 @@
 <template>
   <div class="p-6 max-w-5xl mx-auto">
-    <h1 class="text-3xl font-bold text-center text-blue-800 mb-4">Kursy walut</h1>
-    <p class="text-center text-sm text-gray-500 mb-6">Aktualizacja: {{ lastUpdated || 'Ładowanie...' }}</p>
+    <h1 class="text-3xl font-bold text-center text-blue-800 mb-4">{{$t('currencies')}}</h1>
+    <p class="text-center text-sm text-gray-500 mb-6">{{$t('update')}}: {{ lastUpdated || 'Ładowanie...' }}</p>
 
     <div class="overflow-x-auto rounded-xl shadow-lg bg-white">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-blue-50">
         <tr>
-          <th class="px-6 py-3 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider">Waluta</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider">{{ $t('currency') }}</th>
           <th @click="sortBy('bid')" class="px-6 py-3 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider cursor-pointer">
-            Kupno
+            {{ $t('purchase') }}
             <span v-if="sortKey === 'bid'">{{ sortAsc ? '▲' : '▼' }}</span>
           </th>
           <th @click="sortBy('ask')" class="px-6 py-3 text-left text-sm font-semibold text-blue-800 uppercase tracking-wider cursor-pointer">
-            Sprzedaż
+            {{ $t('sale') }}
             <span v-if="sortKey === 'ask'">{{ sortAsc ? '▲' : '▼' }}</span>
           </th>
         </tr>
