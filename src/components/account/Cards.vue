@@ -62,7 +62,6 @@
     <div v-if="selectedCard" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
         <h3>Szczegóły Karty</h3>
-        <p><strong>ID:</strong> {{ selectedCard.id }}</p>
         <p><strong>Numer karty:</strong> {{ selectedCard.nr_karty ? maskCardNumber(selectedCard.nr_karty) : 'Brak danych' }}</p>
         <p><strong>Data ważności:</strong> {{ formatDate(selectedCard.data_waznosci) }}</p>
         <p><strong>Limit dzienny:</strong> {{ selectedCard.limit_dzienny }} PLN</p>

@@ -115,6 +115,7 @@ import { useAuthStore } from '@/store/auth'
 
 const authStore = useAuthStore()
 const idKontaNadawcy = ref(null)
+const nrKontaNadawcy = ref('')
 const komunikat = ref('')
 const blad = ref('')
 
@@ -137,8 +138,11 @@ onMounted(async () => {
     })
     const konta = res.data
     if (konta.length > 0) {
-      idKontaNadawcy.value = konta[0].id
+      const konto = konta[0]
+      idKontaNadawcy.value = konto.id
+      nrKontaNadawcy.value = konto.nr_konta
       console.log('ID konta nadawcy:', idKontaNadawcy.value)
+      console.log('Numer konta nadawcy:', nrKontaNadawcy.value)
     } else {
       blad.value = 'Użytkownik nie posiada żadnego konta.'
     }
@@ -154,6 +158,11 @@ const wyslijPrzelew = async () => {
 
   if (!idKontaNadawcy.value) {
     blad.value = 'Brak ID konta nadawcy.'
+    return
+  }
+
+  if (form.value.nr_konta_odbiorcy === nrKontaNadawcy.value) {
+    blad.value = 'Nie możesz wykonać przelewu na własne konto.'
     return
   }
 

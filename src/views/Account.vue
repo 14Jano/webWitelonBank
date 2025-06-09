@@ -25,14 +25,18 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import SaldoHistoria from '../components/account/History.vue'
+// @ts-ignore
 import KartyZarzadzanie from '../components/account/Cards.vue'
+// @ts-ignore
 import Transfer from '../components/account/Transfer.vue'
 import UstawieniaKonta from '../components/account/Settings.vue'
+// @ts-ignore
 import AccountList from "../components/AccountList.vue";
+// @ts-ignore
 import PlatnosciCykliczne from '../views/RecurringPayments.vue'
 import ListaOdbiorcow from '../views/Recipients.vue'
 
-import { useAuthStore } from '@/store/auth'
+import { useAuthStore } from '../store/auth'
 import { useRouter } from 'vue-router'
 
 defineExpose({ SaldoHistoria, KartyZarzadzanie })
@@ -41,7 +45,7 @@ const tabs = [
   { name: 'saldo', label: 'Saldo i Historia' },
   { name: 'przelewy', label: 'Przelewy' },
   { name: 'karty', label: 'Karty Płatnicze' },
-  { name: 'cykliczne', label: 'Płatności Cykliczne' },
+  { name: 'cykliczne', label: 'Zlecenia Stałe' },
   { name: 'odbiorcy', label: 'Odbiorcy' },
   { name: 'ustawienia', label: 'Ustawienia Konta' },
 ]
