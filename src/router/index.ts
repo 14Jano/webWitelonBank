@@ -9,6 +9,7 @@ import Dashboard from "../views/Dashboard.vue";
 import Recipients from "../views/Recipients.vue";
 import Account from "../views/Account.vue";
 import AppLayout from "../components/AppLayout.vue";
+// @ts-ignore
 import Currencies from "../views/Currencies.vue";
 import Help from "../views/Help.vue";
 import Promo from "../views/Promo.vue";
@@ -32,7 +33,7 @@ const routes = [
         meta: { requiresAuth: true }
     },
     { path: "/recipients", component: Recipients, meta: { requiresAuth: true } },
-    { path: "/reset-password", component: import('../components/account/ResetPassword.vue') },
+    { path: "/reset-password", component: () => import('../components/account/ResetPassword.vue') },
     { path: "/forgot-password", component: () => import('../components/account/ForgotPassword.vue') },
     { path: "/zlecenia-stale", component: ResetPassword, meta: { requiresAuth: true } },
     {
@@ -40,7 +41,7 @@ const routes = [
         component: Account,
         meta: { requiresAuth: true }
     }, { path: "/", redirect: "/login" },
-    { path: "/2fa", component: import('../components/TwoFactor.vue') }
+    { path: "/2fa", component: () => import('../components/TwoFactor.vue') }
 ];
 
 const router = createRouter({

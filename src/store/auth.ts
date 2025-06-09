@@ -8,7 +8,7 @@ export const useAuthStore = defineStore('auth', {
             email: string
             imie: string
             nazwisko: string,
-            konta: [
+            konta:
                 {
                     id: number
                     nr_konta: string
@@ -17,8 +17,7 @@ export const useAuthStore = defineStore('auth', {
                     typ: string
                     limit_przelewow: string
                     zablokowane: boolean
-                }[]
-            ],
+                }[],
         },
         token: localStorage.getItem('userToken') || localStorage.getItem('tempToken') || null,
         loginEmail: null as string | null,

@@ -5,7 +5,6 @@
     <div v-if="loading" class="text-gray-500">Ładowanie danych konta...</div>
 
     <div v-else-if="konto">
-      <p><strong>ID konta:</strong> {{ konto.id }}</p>
       <p><strong>Numer konta:</strong> {{ konto.nr_konta }}</p>
       <p><strong>Saldo:</strong> {{ konto.saldo }} PLN</p>
       <p><strong>Limit przelewu:</strong> {{ konto.limit_przelewu }} PLN</p>

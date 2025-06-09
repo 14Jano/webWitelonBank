@@ -99,7 +99,6 @@
         <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md relative max-h-[90vh] overflow-y-auto">
           <h3 class="text-xl font-bold mb-5 text-gray-800">Szczegóły transakcji</h3>
           <ul class="space-y-3 text-sm text-gray-700">
-            <li><strong>ID Transakcji:</strong> <span class="font-mono text-gray-600">{{ selectedTx.id }}</span></li>
             <li><strong>Data zlecenia:</strong> {{ formatDate(selectedTx.dateCreated) }}</li>
             <li><strong>Data realizacji:</strong> {{ formatDate(selectedTx.date) }}</li>
             <li><strong>Tytuł:</strong> <span class="font-medium">{{ selectedTx.title }}</span></li>
@@ -114,7 +113,6 @@
               {{ selectedTx.raw.adres_odbiorcy_linia2 }}
             </li>
             <li v-if="selectedTx.raw.informacja_zwrotna"><strong>Informacja zwrotna:</strong> <span class="italic">{{ selectedTx.raw.informacja_zwrotna }}</span></li>
-            <li><strong>Utworzono:</strong> {{ formatDate(selectedTx.raw.utworzono) }}</li>
           </ul>
           <button
               @click="closeModal"

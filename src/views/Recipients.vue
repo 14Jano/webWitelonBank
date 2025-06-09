@@ -15,6 +15,15 @@
           <label class="block mb-1">Rzeczywista nazwa odbiorcy</label>
           <input v-model="nowy.rzeczywista" type="text" class="input" required />
         </div>
+        <div class="md:col-span-2">
+          <label class="block mb-1">Adres odbiorcy (linia 1)</label>
+          <input v-model="nowy.adres1" type="text" class="input" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block mb-1">Adres odbiorcy (linia 2)</label>
+          <input v-model="nowy.adres2" type="text" class="input" />
+        </div>
+
         <div class="md:col-span-2 text-right">
           <button type="submit" class="btn-primary">Zapisz odbiorcę</button>
         </div>
@@ -60,12 +69,11 @@
         <h3 class="text-lg font-semibold mb-4">Szczegóły odbiorcy: {{ selectedRecipient.nazwa_zdefiniowana }}</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
           <div>
-            <p><strong class="font-medium">ID:</strong> {{ selectedRecipient.id }}</p>
-            <p><strong class="font-medium">ID Użytkownika:</strong> {{ selectedRecipient.id_uzytkownika }}</p>
             <p><strong class="font-medium">Nazwa zdefiniowana:</strong> {{ selectedRecipient.nazwa_zdefiniowana }}</p>
             <p><strong class="font-medium">Numer konta:</strong> {{ selectedRecipient.nr_konta }}</p>
             <p><strong class="font-medium">Rzeczywista nazwa:</strong> {{ selectedRecipient.rzeczywista_nazwa }}</p>
-            <p><strong class="font-medium">Utworzono:</strong> {{ formatDate(selectedRecipient.dodano) }}</p>
+            <p><strong class="font-medium">Adres linia 1:</strong> {{ selectedRecipient.adres_linia1 }}</p>
+            <p><strong class="font-medium">Adres linia 2:</strong> {{ selectedRecipient.adres_linia2 }}</p>
           </div>
         </div>
         <div class="text-right mt-4">
@@ -90,6 +98,15 @@
             <label class="block mb-1">Rzeczywista nazwa odbiorcy</label>
             <input v-model="editing.rzeczywista" type="text" class="input" required />
           </div>
+          <div>
+            <label class="block mb-1">Adres odbiorcy (linia 1)</label>
+            <input v-model="editing.adres1" type="text" class="input" />
+          </div>
+          <div>
+            <label class="block mb-1">Adres odbiorcy (linia 2)</label>
+            <input v-model="editing.adres2" type="text" class="input" />
+          </div>
+
           <div class="flex justify-end space-x-2">
             <button type="button" @click="closeEditModal" class="btn-secondary">Anuluj</button>
             <button type="submit" class="btn-primary">Zapisz</button>
@@ -112,6 +129,9 @@ interface Recipient {
   nr_konta: string
   rzeczywista_nazwa: string
   dodano: string
+  adres_linia1?: string
+  adres_linia2?: string
+
 }
 
 axios.defaults.baseURL = 'https://witelonapi.host358482.xce.pl'
@@ -125,14 +145,18 @@ const showDetailsModal = ref(false)
 const nowy = reactive({
   nazwa: '',
   nr: '',
-  rzeczywista: ''
+  rzeczywista: '',
+  adres1: '',
+  adres2: ''
 })
 
 const editing = reactive({
   id: 0,
   nazwa: '',
   nr: '',
-  rzeczywista: ''
+  rzeczywista: '',
+  adres1: '',
+  adres2: ''
 })
 const showEdit = ref(false)
 
@@ -174,7 +198,9 @@ async function dodajOdbiorce() {
       id_uzytkownika: userId,
       nazwa_odbiorcy_zdefiniowana: nowy.nazwa,
       nr_konta_odbiorcy: nowy.nr,
-      rzeczywista_nazwa_odbiorcy: nowy.rzeczywista
+      rzeczywista_nazwa_odbiorcy: nowy.rzeczywista,
+      adres_odbiorcy_linia1: nowy.adres1,
+      adres_odbiorcy_linia2: nowy.adres2
     }
     await axios.post('/api/zapisani-odbiorcy', payload, {
       headers: { Authorization: `Bearer ${auth.token}` }
@@ -202,10 +228,14 @@ function openEditModal(r: Recipient) {
   editing.nazwa = r.nazwa_zdefiniowana
   editing.nr = r.nr_konta
   editing.rzeczywista = r.rzeczywista_nazwa
+  editing.adres1 = r.adres_linia1 || ''
+  editing.adres2 = r.adres_linia2 || ''
   showEdit.value = true
 }
 
 function closeEditModal() {
+  editing.adres1 = ''
+  editing.adres2 = ''
   showEdit.value = false
 }
 
@@ -214,7 +244,9 @@ async function updateOdbiorce() {
     await axios.put(`/api/zapisani-odbiorcy/${editing.id}`, {
       nazwa_odbiorcy_zdefiniowana: editing.nazwa,
       nr_konta_odbiorcy: editing.nr,
-      rzeczywista_nazwa_odbiorcy: editing.rzeczywista
+      rzeczywista_nazwa_odbiorcy: editing.rzeczywista,
+      adres_odbiorcy_linia1: editing.adres1,
+      adres_odbiorcy_linia2: editing.adres2
     }, {
       headers: { Authorization: `Bearer ${auth.token}` }
     })
